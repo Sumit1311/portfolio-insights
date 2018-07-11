@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+        <meta name="description" content="dodolan manuk responsive catalog themes built with twitter bootstrap">
+        <meta name="keywords" content="responsive, catalog, cart, themes, twitter bootstrap, bootstrap">
+        <meta name="author" content="afriq yasin ramadhan">
+        <link rel="shortcut icon" href="/img/favicon.png">
+
+        <title>Navnirmitee Smart Toy Library</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="/css/bootstrap.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="/css/style.css" rel="stylesheet">
+        <link href="/css/responsive.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="js/html5shiv.js"></script>
+            <script src="js/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+        {{#unless hideNavBar}}
+            <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+                <div class="row">
+                    <div class="{{#and isLoggedIn showSideBar}}col-md-offset-1 col-md-11{{else}}col-md-12{{/and}}" style="padding-left : 0px;padding-right: 0px;">
+                            <div class="container">
+                                <!-- Brand and toggle get grouped for better mobile display -->
+                                <div class="navbar-header">
+                                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                                        <span class="sr-only">Toggle navigation</span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                    </button>
+                                    <a class="navbar-brand visible-xs" href="/">Navnirmitee</a>
+                                </div>
+
+                                <!-- Collect the nav links, forms, and other content for toggling -->
+                                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                                    <ul class="nav navbar-nav nav-left">
+                                        <!-- <li class="active"><a href="/">Home</a></li> -->
+                                        <li><a href="/">Home</a></li>
+                                        <li><a href="/hoowitworks">How It Works</a></li>
+                                        {{#if isLoggedIn}}
+                                        {{else}}
+                                            <li><a href="/pricing">Plans</a></li>
+                                        {{/if}}
+                                        <li style="{{#if isLoggedIn}}width: 600px;{{else}} width : 564px{{/if}}">    <div class="row"><div style="padding-right: 0px;" class="col-md-10">
+                                                <form _lpchecked="1" class="navbar-search navbar-form" id="_nav_search_form" method="get" action="/toys/search{{#if queryParameters}}?{{queryParameters}}{{/if}}">
+                                                   <input style="width: 100%;" class="form-control" placeholder="Search" name="q" type="text" value="{{query}}">
+                                                </form>
+                                            </div>
+                                            <div style="padding-left: 0px;" class="col-md-2">
+                                                <button class="btn btn-green navbar-btn" style="width : 100%" type="button" id="_nav_search_button">Go!</button>    
+                                            </div>
+                                        </div>
+                                        </li>
+
+
+                                    </ul>
+                                    <!-- <a href="/" class="logo visible-lg visible-md" style="{{#and isLoggedIn showSideBar}}left:55%;{{/and}}"><img src="/img/logo.jpg" alt="dodolan manuk responsive catalog themes"></a>
+   <div id="brand" class="visible-lg visible-md">&nbsp;</div> -->
+                                        <ul class="nav navbar-nav nav-right" style="margin-left : 0px;">
+                                            <li><a href="/about">About Us</a></li> 
+                                            <!-- <li><a href="/profile">Profile</a></li>-->
+                                            <li><a href="/contact">Contact</a></li>
+                                            {{#if isLoggedIn }}
+                                                {{#if showSideBar}}
+                                                {{else}}
+                                                    <li class="dropdown"><a class="dropdown-toggle hidden-xs" data-toggle="dropdown"><span style="text-transform: capitalize;">Hi {{user.first_name}},</span><span class="caret"></span></a>
+                                                        <ul style="width: 100%; margin-top: 0px;" class="dropdown-menu dropdown-menu-right" >
+                                                            <li><a href="/user/rechargeDetails">My Wallet</a></li>
+                                                            <li><a href="/user/orderDetails">My Orders</a></li>
+                                                            <!-- <li><a href="/logout">Logout</a></li> -->
+                                                            <li><a href="/logout">Logout</a></li>
+                                                        </ul>
+                                                    </li>
+                                                {{/if}}
+
+                                            {{else}}
+                                                <li><a href="/login" >Login</a></li>
+                                            {{/if}}
+                                            <!-- <a class="navbar-btn dropdown-toggle hidden-xs"><i class="glyphicon glyphicon-shopping-cart"></i><span> Cart - 0 </span><span class="caret"></span></a>   
+                                                </li> -->
+                                                <!--<li><a href="order.html">Order</a></li>-->
+                                        </ul>
+
+                                </div><!-- /.navbar-collapse -->
+                            </div><!-- /.container-fluid -->
+                    </div>
+                </div>
+            </nav>
+        {{/unless}}
+        {{#and isLoggedIn showSideBar}}
+            <div class="page-content">
+                <div class="container sidebar-container">
+                    <div style="padding-left : 0px; padding-right: 0px;" class="col-md-1 col-xs-2">
+
+                        <ul class="list-group" style="margin-top: 24px;">
+                            <li class="list-group-item sidebar-menu-item">
+                                <a href="/user/orderDetails" style="color : #333">
+                                    <i class="glyphicon glyphicon-link" style=""></i><p style="font-size: 10px;">My Orders</p>
+                                </a>
+                            </li>
+                            <li class="list-group-item sidebar-menu-item">
+                                <a href="/user/rechargeDetails" style="color : #333">
+                                    <i class="glyphicon glyphicon-link" style=""></i><p style="font-size: 10px;">My Plan</p>
+                                </a>
+                            </li>
+                            <li class="list-group-item sidebar-menu-item">
+                                <a href="/logout" style="color : #333">
+                                    <i class="glyphicon glyphicon-log-out" style=""></i><p style="font-size: 10px;">Sign Out</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-11" style="padding-left : 0px; padding-right: 0px;">
+                    {{/and}}
+                    {{{body}}}
+                    {{#and isLoggedIn showSideBar}}    
+                        </div>
+                </div>
+            </div>
+        {{/and}}
+        <!-- begin:footer -->
+        <div id="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>Navnirmitee</h3>
+                        <p>Smart Toy Library</p>
+
+                        <!--					<ul class="list-unstyled social-icon">
+                            <li><a href="#" rel="tooltip" title="Facebook" class="icon-facebook"><span><i class="fa fa-facebook-square"></i></span></a></li>
+                            <li><a href="#" rel="tooltip" title="Twitter" class="icon-twitter"><span><i class="fa fa-twitter"></i></span></a></li>
+                            <li><a href="#" rel="tooltip" title="Linkedin" class="icon-linkedin"><span><i class="fa fa-linkedin"></i></span></a></li>
+                            <li><a href="#" rel="tooltip" title="Instagram" class="icon-gplus"><span><i class="fa fa-google-plus"></i></span></a></li>
+                            <li><a href="#" rel="tooltip" title="Instagram" class="icon-instagram"><span><i class="fa fa-instagram"></i></span></a></li>
+                            </ul>-->
+
+                            <div class="sitemap">
+                                <ul>
+                                    <li><a href="/">HOME</a></li>
+                                    <li><a href="/about">ABOUT</a></li>
+                                    <!--							<li><a href="/profile">PROFILE</a></li> -->
+                                    <li><a href="/contact">CONTACT</a></li>
+                                    <li><a href="/login">LOGIN</a></li>
+                                </ul>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end:footer -->
+
+        <!-- begin:copyright -->
+        <div id="copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <small>Copyright &copy; 2013 Dodolan Manuk All Right Reserved. Made With <i class="fa fa-heart-o"></i> by Afriq</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end:copyright -->
+
+        <!-- Bootstrap core JavaScript
+            ================================================== -->
+            <!-- Placed at the end of the document so the pages load faster -->
+            <script>
+var Q;
+            </script>
+            <script src="/js/q-1.1.0.js"></script>
+            <script src="/js/jquery.js"></script>
+            <script src="/js/jquery.validate.min.js"></script>
+            <script src="/js/bootstrap.js"></script>
+            <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&amp;language=en"></script>
+            <script src="/js/gmap3.js"></script>
+            <script src="/js/util.js"></script>
+            <script src="/js/helpers/navLogInHelper.js"></script>
+            <script src="/js/helpers/navRegistrationHelper.js"></script>
+            <script src="/js/helpers/navOrderHelper.js"></script>
+            <script src="/js/helpers/navSearchHelper.js"></script>
+            <script src="/js/script.js"></script>
+    </body>
+</html>
