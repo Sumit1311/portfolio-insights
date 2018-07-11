@@ -1,0 +1,20 @@
+#!/bin/bash
+
+export DB_HOST="localhost"
+export DB_USER="admin"
+export DB_PASS="admin"
+export DB_NAME="navnirmitee"
+export DB_PORT="5433"
+export REDISCLOUD_URL="redis://127.0.0.1:6379"
+export PORT="3000"
+export HOST_NAME="localhost"
+export APP_DIR='/home/geek/workspace/navnirmitee/node-app'
+DEBUG=0
+
+if [ "$DEBUG" -eq "1" ] 
+then
+    echo "Starting in debug mode";
+    node --debug-brk=5858 "$APP_DIR/app.js";
+else
+    node "$APP_DIR/app.js";
+fi
