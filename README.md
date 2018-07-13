@@ -2,7 +2,7 @@
 
 Steps :
 
-1) Install Node.js V6.11 along with npm, Install postgres(9.6), Install redis(4.0.10)
+1) Install Node.js V6.11 along with npm, Install postgres(9.6), Install redis(3.0.51)
 Link for redis : https://github.com/rgl/redis/downloads
 2) Install Webstorm(2018.5.1) as an IDE
 3) Download Git Bash(2.18) for windows
