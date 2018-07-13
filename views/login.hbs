@@ -1,0 +1,141 @@
+
+    <!-- begin:heading -->
+    <div class="heads" style="background: transparent url(&quot;img/img02.jpg&quot;) repeat scroll center center; padding: 0px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><span>//</span> Log in</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end:heading -->
+    
+    <!-- begin:content -->
+    <div class="page-content">
+        <div class="container">
+            
+            
+            <div class="row confirm">
+                <div class="col-md-6">
+                    <div id="_nav_login_div" class="">
+                    <h3 class='text-center'>Log In</h3>
+
+                    <hr>
+		    <form _lpchecked="1" class="form-horizontal" role="form" action="/{{#if redirection}}?redirect={{redirection}}{{/if}}" method="post">
+                        
+
+                        
+
+                        <div class="form-group">
+                            <label style="text-align: left;" class="col-sm-offset-3 col-sm-6 control-label">Email address</label>
+                            <div class="col-sm-offset-3 col-sm-6">
+                              <input class="form-control" placeholder="Email address" name="email" required="" type="email">
+                            </div>
+                        </div><div class="form-group">
+                            <label style="text-align: left;" class="col-sm-offset-3 col-sm-6 control-label">Password  </label>
+                            <div class="col-sm-offset-3 col-sm-6">
+                              <input class="form-control" placeholder="Password" required="" name="password" type="password">
+                            </div>
+                        </div>
+
+                        <div id="_nav_login_error" class="form-group hidden">
+				<div class="col-sm-offset-3 col-sm-6 ">
+					<div class="alert alert-danger" style="padding: 7px; font-size: 11px; margin-bottom: 0px;" role="alert">
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-6"><a href="#" id="_nav_forgotpassword">Forgot Password</a>
+                            </div>
+                            <div class="col-sm-3 hidden-lg hidden-md"><a href="#" id="_nav_createanaccount">Create An Account</a>
+                            </div>
+                            </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-6">
+                              <button type="submit" id="_nav_login_button" style="width : 100%" class="btn btn-green">Log In</button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                    <div id="_nav_forgot_password_div" class="hidden">
+                    <form class="form-horizontal " role="form" action="/forgot" method="post">
+                        
+                     <h3 class='text-center'>Reset Password</h3>
+
+                    <hr>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Email address</label>
+                            <div class="col-sm-5">
+                              <input class="form-control" placeholder="Email address" name="email" required="" type="email">
+                            </div>
+			    <div id="_nav_forgot_pass_error" class="form-group hidden">
+				<div class="col-sm-offset-3 col-sm-6 ">
+					<div class="alert alert-danger" style="padding: 7px; font-size: 11px; margin-bottom: 0px;" role="alert">
+					</div>
+				</div>
+			   </div>
+                            <div class="col-sm-3">
+
+                              <button type="submit" style="" class="btn btn-green">Reset Password</button>
+                            </div>
+                        </div>
+
+                    </form>
+                    </div>
+                </div>
+                <div id="_nav_register_div" class="col-md-6 hidden-xs" style="border-left: 1px outset;">
+                    <h3 class='text-center'>Create An Account</h3>
+
+                    <hr>
+                    <form class="form-horizontal" role="form" action="/register" method="post">
+                        
+
+                        <div class="form-group">
+                            <label class="col-sm-offset-3 col-sm-6 control-label" style="text-align: left;">Email address</label>
+                            <div class="col-sm-offset-3 col-sm-6">
+                              <input class="form-control" placeholder="Email address" name="email" required="" type="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-offset-3 col-sm-6 control-label" style="text-align: left;">Contact No.</label>
+                            <div class="col-sm-offset-3 col-sm-6">
+                              <input class="form-control" placeholder="Mobile No" name="mobileNo"  type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-offset-3 col-sm-6 control-label" style="text-align: left;" >Password : </label>
+                            <div class="col-sm-offset-3 col-sm-6">
+                              <input class="form-control" placeholder="Password" required="" name="password" type="password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-offset-3 col-sm-6 control-label" style="text-align: left;">Confirm Password : </label>
+                            <div class="col-sm-offset-3 col-sm-6">
+                              <input class="form-control" placeholder="Password" required="" name="passwordConf" type="password">
+                            </div>
+                        </div>
+                        <div id="_nav_register_error" class="form-group hidden">
+				<div class="col-sm-offset-3 col-sm-6 ">
+					<div class="alert alert-danger" style="padding: 7px; font-size: 11px; margin-bottom: 0px;" role="alert">
+					</div>
+				</div>
+			</div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-6">
+                              <button id="_nav_register_button" type="submit" class="btn btn-green" style="width : 100%">Register</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end:content -->
+
