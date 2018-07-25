@@ -7,7 +7,7 @@
     "RedisServerURL": "{{{REDISCLOUD_URL}}}",
     "ListeningPort": "{{{PORT}}}",
     "HostName" : "{{{HOST_NAME}}}",
-    "SmtpURL" : "smtps://postmaster@ajab-gajab.com:4856b99f073478acc688acb838f87044@smtp.mailgun.org",
+    "SmtpURL" : "smtps://postmaster@sandboxbbd22ffa41a94204aef58467414990a8.mailgun.org:30278e4edb175903bfa63e0e2fbdde8b-3b1f59cf-c446dd0c@smtp.mailgun.org",
     "BackgroundProcessing" : {
         "TransactionInterval" : 1000,
         "OrderInterval" : 1000

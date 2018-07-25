@@ -1,5 +1,5 @@
 {
-  "name": "AjabGajab",
+  "name": "Portfolio-Insights",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
@@ -62,7 +62,7 @@
     "tether": "^1.4.3",
     "tinycolor2": "^1.4.1"
   },
-  "description": "Toy Library",
+  "description": "Portfolio Insights",
   "main": "app.js",
   "author": "",
   "license": "MIT",

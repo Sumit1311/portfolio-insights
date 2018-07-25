@@ -75,20 +75,18 @@ $(function() {
 
     var loginValidationSettings = {
 	    rules: {
-	        username: {
+	        email: {
 	            required: true,
 	            email: true
 	        },
-	        password: "required",
-	        agree: "required"
+	        password: "required"
 	    },
 	    messages: {
-	        username: {
+	        email: {
 	            required: "Please enter username",
 	            email: "Please enter a valid email address"
 	        },
-	        password:  "Please enter password",
-	        agree: "Please accept our policy"
+	        password:  "Please enter password"
 	    },
 	    invalidHandler: function() {
 			animate({
@@ -155,18 +153,18 @@ $(function() {
 				required: true,
 				minlength: 8
 	        },
-	        retype_password: {
+	        passwordConf: {
 				required: true,
 				minlength: 8,
 				equalTo: "#password"
 			},
 			agree: {
-				required: true,
+				checked : true
 			}
 	    },
 	    groups: {
 	    	name: "firstname lastname",
-			pass: "password retype_password",
+			pass: "password passwordConf",
 		},
 		errorPlacement: function(error, element) {
 			if (
@@ -179,14 +177,15 @@ $(function() {
 			} 
 			else if (
 				element.attr("name") == "password" || 
-				element.attr("name") == "retype_password" 
+				element.attr("name") == "passwordConf"
 			) {
-				error.insertAfter($("#retype_password").closest('.row'));
+				error.insertAfter($("#passwordConf").closest('.row'));
 				element.parents("div.form-group")
 				.addClass('has-error');
 			}
 			else if (element.attr("name") == "agree") {
-				error.insertAfter("#agree-text");
+                error.insertAfter($("#agree").closest('.row'));
+			    //error.insertAfter("#agree-text");
 			}
 			else {
 				error.insertAfter(element);
@@ -203,9 +202,10 @@ $(function() {
 	        	required: "Please enter password fields.",
 	        	minlength: "Passwords should be at least 8 characters."
 	        },
-	        retype_password: {
+            passwordConf: {
 	        	required: "Please enter password fields.",
-	        	minlength: "Passwords should be at least 8 characters."
+	        	minlength: "Passwords should be at least 8 characters.",
+                equal: "Passwords do not match"
 	        },
 	        agree: "Please accept our policy"
 	    },
