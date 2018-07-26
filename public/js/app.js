@@ -139,10 +139,10 @@ $(function() {
 
     var signupValidationSettings = {
 	    rules: {
-	    	firstname: {
+	    	firstName: {
 	    		required: true,
 	    	},
-	    	lastname: {
+	    	lastName: {
 	    		required: true,
 	    	},
 	        email: {
@@ -163,15 +163,15 @@ $(function() {
 			}
 	    },
 	    groups: {
-	    	name: "firstname lastname",
-			pass: "password passwordConf",
+	    	name: "firstName lastName",
+			pass: "password passwordConf"
 		},
 		errorPlacement: function(error, element) {
 			if (
-				element.attr("name") == "firstname" || 
-				element.attr("name") == "lastname" 
+				element.attr("name") == "firstName" ||
+				element.attr("name") == "lastName"
 			) {
-				error.insertAfter($("#lastname").closest('.row'));
+				error.insertAfter($("#lastName").closest('.row'));
 				element.parents("div.form-group")
 				.addClass('has-error');
 			} 
@@ -192,8 +192,8 @@ $(function() {
 			}
 		},
 	    messages: {
-	    	firstname: "Please enter firstname and lastname",
-	    	lastname: "Please enter firstname and lastname",
+	    	firstName: "Please enter firstname and lastname",
+	    	lastName: "Please enter firstname and lastname",
 	        email: {
 	            required: "Please enter email",
 	            email: "Please enter a valid email address"
@@ -221,6 +221,70 @@ $(function() {
 
     $('#signup-form').validate(signupValidationSettings);
 });
+
+//RegistrationForm validation
+$(function() {
+    if (!$('#registration-form').length) {
+        return false;
+    }
+
+    var registrationValidationSettings = {
+        rules: {
+            mobileNo: {
+                required: true,
+                number: true,
+                maxlength: 15
+            },
+            address: {
+                required: true,
+                maxlength: 255
+            }
+        },
+        groups: {
+        },
+        errorPlacement: function(error, element) {
+            if (
+                element.attr("name") == "mobileNo"
+            ) {
+                error.insertAfter($("#mobileNo"));
+                element.parents("div.form-group")
+                    .addClass('has-error');
+            }
+            else if (
+                element.attr("name") == "address"
+            ) {
+                error.insertAfter($("#address"));
+                element.parents("div.form-group")
+                    .addClass('has-error');
+            }
+            else {
+                error.insertAfter(element);
+            }
+        },
+        messages: {
+            mobileNo: {
+                required : "Please enter Phone Number",
+                number: "Please enter valid Phone Number",
+                maxlength: "Phone Number length cannot be greater than 15"
+            },
+            address: {
+                required: "Please enter valid address",
+                maxlength: "Address cannot be more than 255 characters long"
+            }
+        },
+        invalidHandler: function() {
+            animate({
+                name: 'shake',
+                selector: '.auth-container > .card'
+            });
+        }
+    }
+
+    $.extend(registrationValidationSettings, config.validations);
+
+    $('#registration-form').validate(registrationValidationSettings);
+});
+
 /***********************************************
 *        Animation Settings
 ***********************************************/

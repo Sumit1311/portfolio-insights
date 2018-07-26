@@ -1,0 +1,34 @@
+<div class="auth">
+    <div class="auth-container">
+        <div class="card">
+            <header class="auth-header">
+                <h1 class="auth-title">
+                    {{> _common/logo/logo}}
+                    {{themeTitle}}
+                </h1>
+            </header>
+            <div class="auth-content">
+                <p class="text-center">FILL IN ADDITIONAL DETAILS</p>
+                <form id="registration-form"  action="/registrationDetails?code={{verificationCode}}" method="POST" novalidate="">
+                    <div class="form-group">
+                        <label for="email" >Email</label>
+                        <input type="email" class="form-control underlined" name="email" id="email" readonly="readonly" value={{user.email_address}}>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobileNo" >Phone Number</label>
+                        <div class="col-sm-14">
+                            <input type="text" class="form-control underlined" name="mobileNo" id="mobileNo" placeholder="Enter Phone Number" required="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Address</label>
+                        <textarea rows="3" name="address" id="address" class="form-control underlined" placeholder="Enter Address" required=""></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-block btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
