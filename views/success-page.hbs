@@ -9,14 +9,22 @@
             </header>
             <div class="auth-content">
                 <p class="text-center">
-                <h4>  Registration Success. Please verify your email address by going to your mailbox. </h4>
+                <h4>  {{successMessage}} </h4>
                 </p>
             </div>
         </div>
+        {{#if showLoginBtn}}
+            <div class="text-center">
+                <a href="/login" class="btn btn-secondary btn-sm">
+                    <i class="fa fa-arrow-left"></i> Login
+                </a>
+            </div>
+        {{else}}
         <div class="text-center">
             <a href="/" class="btn btn-secondary btn-sm">
                 <i class="fa fa-arrow-left"></i> Back to dashboard
             </a>
         </div>
+        {{/if}}
     </div>
  </div>

@@ -131,6 +131,65 @@ $(function() {
 
     $('#reset-form').validate(resetValidationSettings);
 })
+
+//ResetPasswordForm Validation
+$(function() {
+    if (!$('#reset-password-form').length) {
+        return false;
+    }
+
+    var resetPasswordValidationSettings = {
+        rules: {
+            password: {
+                required: true,
+                minlength: 8
+            },
+            passwordConf: {
+                required: true,
+                minlength: 8,
+                equalTo: "#password"
+            }
+        },
+        groups: {
+            pass: "password passwordConf"
+        },
+        errorPlacement: function(error, element) {
+           if (
+                element.attr("name") == "password" ||
+                element.attr("name") == "passwordConf"
+            ) {
+                error.insertAfter($("#passwordConf").closest('.row'));
+                element.parents("div.form-group")
+                    .addClass('has-error');
+            }
+            else {
+                error.insertAfter(element);
+            }
+        },
+        messages: {
+            password: {
+                required: "Please enter password fields.",
+                minlength: "Passwords should be at least 8 characters."
+            },
+            passwordConf: {
+                required: "Please enter password fields.",
+                minlength: "Passwords should be at least 8 characters.",
+                equalTo: "Passwords do not match"
+            }
+        },
+        invalidHandler: function() {
+            animate({
+                name: 'shake',
+                selector: '.auth-container > .card'
+            });
+        }
+    }
+
+    $.extend(resetPasswordValidationSettings, config.validations);
+
+    $('#reset-password-form').validate(resetPasswordValidationSettings);
+})
+
 //SignupForm validation
 $(function() {
 	if (!$('#signup-form').length) {
@@ -179,7 +238,7 @@ $(function() {
 				element.attr("name") == "password" || 
 				element.attr("name") == "passwordConf"
 			) {
-				error.insertAfter($("#passwordConf").closest('.row'));
+				error.insertAfter($("#password").closest('.row'));
 				element.parents("div.form-group")
 				.addClass('has-error');
 			}
@@ -205,7 +264,7 @@ $(function() {
             passwordConf: {
 	        	required: "Please enter password fields.",
 	        	minlength: "Passwords should be at least 8 characters.",
-                equal: "Passwords do not match"
+                equalTo: "Passwords do not match"
 	        },
 	        agree: "Please accept our policy"
 	    },
