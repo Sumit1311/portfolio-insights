@@ -1,0 +1,95 @@
+<link rel="stylesheet" href="/js/jquery-ui.css">
+<style>
+    #sortable1, #sortable2, #sortable3 {
+        border: 1px solid #eee;
+        width: 142px;
+        min-height: 20px;
+        list-style-type: none;
+        margin: 0;
+        padding: 5px 0 0 0;
+        float: left;
+        margin-right: 10px;
+    }
+    #sortable1 li, #sortable2 li, #sortable3 li {
+        margin: 0 5px 5px 5px;
+        padding: 5px;
+        font-size: 1.2em;
+        width: 120px;
+    }
+</style>
+<script src="/js/jquery-ui.js"></script>
+<script>
+    //Compare Excel Columns Drag & Drop function
+    $(function() {
+        $( "#sortable1, #sortable2" ).sortable({
+            connectWith: ".connectedSortable"
+        }).disableSelection();
+    });
+</script>
+<article class="content dashboard-page">
+    <section class="section">
+        <div class="row sameheight-container">
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">
+                        <div class="form-group">
+                            <ul id="sortable1" class="connectedSortable">
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">
+                        <div class="form-group">
+                            <ul id="sortable3" class="connectedSortable">
+                                <li class="ui-state-default">Item 1</li>
+                                <li class="ui-state-default">Item 2</li>
+                                <li class="ui-state-default">Item 3</li>
+                                <li class="ui-state-default">Item 4</li>
+                                <li class="ui-state-default">Item 5</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">
+                        <div class="form-group">
+                            <ul id="sortable2" class="connectedSortable">
+                                <li class="ui-state-highlight">Item 1</li>
+                                <li class="ui-state-highlight">Item 2</li>
+                                <li class="ui-state-highlight">Item 3</li>
+                                <li class="ui-state-highlight">Item 4</li>
+                                <li class="ui-state-highlight">Item 5</li>
+                                <li class="ui-state-highlight">Item 6</li>
+                                <li class="ui-state-highlight">Item 7</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">
+                        <div class="form-group">
+                            <div>
+                                <label for="exampleFormControlFile1">Submit uploaded file</label>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</article>

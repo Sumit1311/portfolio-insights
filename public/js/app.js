@@ -344,6 +344,51 @@ $(function() {
     $('#registration-form').validate(registrationValidationSettings);
 });
 
+//Upload-Excel-Form validation
+/*
+$(function() {
+    if (!$('#upload-excel-form').length) {
+        return false;
+    }
+
+    var uploadExcelValidationSettings = {
+        rules: {
+            xlsxInputFile: {
+                required: true,
+                accept: "image/jpg"
+            }
+        },
+        errorPlacement: function(error, element) {
+            if (
+                element.attr("name") == "xlsxInputFile"
+            ) {
+                error.insertAfter($("#xlsxInputFile"));
+                element.parents("div.form-group")
+                    .addClass('has-error');
+            }
+            else {
+                error.insertAfter(element);
+            }
+        },
+        messages: {
+            xlsxInputFile: {
+                required : "Please choose xls/xlsx file",
+                accept: "Only xls or xlsx file is allowed"
+            }
+        },
+        invalidHandler: function() {
+            animate({
+                name: 'shake',
+                selector: '.auth-container > .card'
+            });
+        }
+    }
+
+    $.extend(uploadExcelValidationSettings, config.validations);
+
+    $('#upload-excel-form').validate(uploadExcelValidationSettings);
+});*/
+
 /***********************************************
 *        Animation Settings
 ***********************************************/

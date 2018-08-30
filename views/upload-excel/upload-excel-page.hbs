@@ -1,0 +1,96 @@
+<script>
+    $(function() {
+        $('.custom-file-input').on('change', function () {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        });
+
+        var uploadExcelValidationSettings = {
+            rules: {
+                xlsxFile: {
+                    required: true
+                }
+            },
+            errorPlacement: function(error, element) {
+                if (element.attr("name") == "xlsxFile") {
+                    error.insertAfter($("#xlsxFile"));
+                    element.parents("div.form-group").addClass('has-error');
+                }
+                else {
+                    error.insertAfter(element);
+                }
+            },
+            messages: {
+                xlsxFile: {
+                    required : "Please choose xls/xlsx file"
+                }
+            },
+            invalidHandler: function() {
+                animate({
+                    name: 'shake',
+                    selector: '.auth-container > .card'
+                });
+            }
+        }
+
+        $.extend(uploadExcelValidationSettings, config.validations);
+
+        $('#upload-excel-form').validate(uploadExcelValidationSettings);
+
+    });
+</script>
+<article class="content dashboard-page">
+    <section class="section">
+        <div class="row sameheight-container">
+
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">
+                        <form id="upload-excel-form"  action="/doExcelColumnMapping" method="GET" novalidate="">
+                            <div class="form-group">
+                                <div><label>Upload file</label></div>
+                                <!--<input type="file" class="form-control-file" id="exampleFormControlFile1">
+                                    style="margin-top: 30px; margin-right: 10px;"
+                                -->
+                                <div class="custom-file">
+                                    <input id="xlsxFile" name="xlsxFile" type="file" class="custom-file-input"
+                                           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                   application/vnd.ms-excel, text/csv">
+                                    <label for="xlsxFile" class="custom-file-label">Choose xlsx file</label>
+                                </div>
+                            </div>
+                    <!--/div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block"-->
+
+                            <div class="form-group">
+                                <div>
+                                    <label for="exampleFormControlFile1">Submit uploaded file</label>
+                                </div>
+                                <div>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">
+                        <div class="form-group">
+                            <label>Click here to download the sample file</label>
+                            <button type="button" class="btn btn-primary">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</article>
