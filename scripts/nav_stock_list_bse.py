@@ -31,9 +31,9 @@ formFields = (
     )
 con = psycopg2.connect("dbname='PortFolio_Tracking' user='portfolio_tracking' host='127.0.0.1' port='5432' password='portfolio_tracking'")
 cur = con.cursor()
-new_stock_insert_query='INSERT INTO stocks.stock_list_bse("Security_Code", "Security_Id", "Security_Name", "Status", "Group", "Face_Value", "ISIN_No", "Industry", "Instrument") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);'
-existring_stock_update_query='''UPDATE stocks.stock_list_bse SET "Security_Name" = %s, "Status" = %s, "Group" = %s, "Face_Value" = %s, "ISIN_No" = %s, "Industry"  = %s, "Instrument" = %s
-WHERE "Security_Id"= %s'''
+new_stock_insert_query='INSERT INTO stocks.stock_list_bse("security_code", "security_id", "security_name", "status", "security_group", "face_value", "isin_no", "industry", "instrument") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);'
+existring_stock_update_query='''UPDATE stocks.stock_list_bse SET "security_name" = %s, "status" = %s, "security_group" = %s, "face_value" = %s, "isin_no" = %s, "industry"  = %s, "instrument" = %s
+WHERE "security_id"= %s'''
 market_segments=open("F:\\VIDEOS\\python1\\New folder\\segment.txt","r")
 #outFile="F:\\VIDEOS\\python1\\New folder\\bse_stocklist_segmentwise.csv"
 #if (os.path.exists(outFile)):
@@ -55,7 +55,7 @@ for segment in market_segments:
     res=urllib.request.urlopen(req)
     #page_data_str=res.read().decode('utf-8')
     set_existing_stocks=set()
-    cur.execute('SELECT "Security_Code" FROM stocks.stock_list_bse;')
+    cur.execute('SELECT "security_code" FROM stocks.stock_list_bse;')
     present_stock_list=cur.fetchall()
     for stocks in present_stock_list:
         #print(stocks[0])
@@ -65,22 +65,22 @@ for segment in market_segments:
         stock_data=stock_data1.replace('\r','')
         if 'Security Code,Security Id,Security Name,Status,Group,Face Value,ISIN No,Industry,Instrument' not in stock_data:
             #print('stock data **'+stock_data)
-            Security_Code,Security_Id,Security_Name,Status,Group,Face_Value,ISIN_No,Industry,Instrument=stock_data.split(',')
+            security_code,security_id,security_name,status,security_group,face_value,isin_no,industry,instrument=stock_data.split(',')
             #print(stock_data)
-            Security_Code_int=int(Security_Code)
-            if Face_Value=="":
-                Face_Value_float=Face_Value
+            security_code_int=int(security_code)
+            if face_value=="":
+                face_value_float=face_value
             else:
-                Face_Value_float=float(Face_Value)
-            if Security_Code_int not in set_existing_stocks:
-                #print(Security_Code_int)
-                new_stock_data =(Security_Code_int,Security_Id,Security_Name,Status,Group or None,Face_Value_float or None,ISIN_No or None,Industry or None,Instrument)
+                face_value_float=float(face_value)
+            if security_code_int not in set_existing_stocks:
+                #print(security_code_int)
+                new_stock_data =(security_code_int,security_id,security_name,status,security_group or None,face_value_float or None,ISIN_No or None,industry or None,instrument)
                 cur.execute(new_stock_insert_query, new_stock_data)
                 #print('Insert** ',new_stock_data)
-                set_existing_stocks.add(Security_Code_int)
+                set_existing_stocks.add(security_code_int)
                 #print(stock_data)
             else:
-                existing_stock_update_data=(Security_Name,Status,Group or None,Face_Value_float or None,ISIN_No or None,Industry or None,Instrument,Security_Id)
+                existing_stock_update_data=(security_name,status,security_group or None,face_value_float or None,ISIN_No or None,industry or None,instrument,security_id)
                 cur.execute(existring_stock_update_query, existing_stock_update_data)
                 #print('update** ' , existing_stock_update_data)
     #print(page_data_str)

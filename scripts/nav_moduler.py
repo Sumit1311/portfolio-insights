@@ -4,6 +4,7 @@ from ast import literal_eval
 import urllib
 import urllib.parse
 import urllib.request
+import uuid
 
 class db_connection:
     con = psycopg2.connect("dbname='PortFolio_Tracking' user='portfolio_tracking' host='127.0.0.1' port='5432' password='portfolio_tracking'")
@@ -112,10 +113,10 @@ class user_profile_ops:
 				  FROM  stocks.user_stocks_trxn 
 				  WHERE trxn_type='S' AND trxn_flag=1
 				  GROUP BY user_id,security_code,trxn_type)
-                                SELECT B.user_id,B.security_code,B.B_security_count-COALESCE(S.S_security_count, 0) as final_security_count,slb."Security_Id",
-                                        trim( TRAILING '.' from slb."Security_Name") as security_name
+                                SELECT B.user_id,B.security_code,B.B_security_count-COALESCE(S.S_security_count, 0) as final_security_count,slb."security_id",
+                                        trim( TRAILING '.' from slb."security_name") as security_name
                                 FROM BUY_DATA B 
-                                JOIN stocks.stock_list_bse slb on slb."Security_Code"=b.security_code
+                                JOIN stocks.stock_list_bse slb on slb."security_code"=b.security_code
                                 LEFT JOIN SELL_DATA S ON B.user_id=S.user_id AND B.security_code=S.security_code
                                 WHERE B.B_security_count-COALESCE(S.S_security_count, 0) >0
                                 ORDER BY user_id,security_code'''
@@ -179,13 +180,13 @@ class user_profile_ops:
         self.user=user
         con = psycopg2.connect("dbname='PortFolio_Tracking' user='portfolio_tracking' host='127.0.0.1' port='5432' password='portfolio_tracking'")
         cur = con.cursor()
-        user_stock_trxn_query='''SELECT user_id,security_code,security_count,trxn_date,trxn_type,slb."Security_Id", trim( TRAILING '.' from slb."Security_Name") as Security_Name, trxn_seq_id FROM stocks.user_stocks_trxn ust
-                                 JOIN stocks.stock_list_bse slb ON ust.security_code=slb."Security_Code" WHERE ust.user_id=%s and trxn_flag=0 order by ust.trxn_date asc'''
+        user_stock_trxn_query='''SELECT user_id,security_code,security_count,trxn_date,trxn_type,slb."security_id", trim( TRAILING '.' from slb."security_name") as security_name, _id FROM stocks.user_stocks_trxn ust
+                                 JOIN stocks.stock_list_bse slb ON ust.security_code=slb."security_code" WHERE ust.user_id=%s and trxn_flag=0 order by ust.trxn_date asc'''
         cur.execute(user_stock_trxn_query, user)
         user_trxns=cur.fetchall()
         for security in user_trxns:
-            user_id,security_code,security_count,trxn_date,trxn_type,security_id,security_name,trxn_seq_id=security[0],security[1],security[2],security[3],security[4],security[5],security[6],security[7]
-            print(user_id,security_code,security_count,trxn_date,trxn_type,security_id,security_name,trxn_seq_id)
+            user_id,security_code,security_count,trxn_date,trxn_type,security_id,security_name,_id=security[0],security[1],security[2],security[3],security[4],security[5],security[6],security[7]
+            print(user_id,security_code,security_count,trxn_date,trxn_type,security_id,security_name,_id)
             security_code=str(security_code)
             secobj=bse_connection()
             secdata=secobj.get_bse_stock_data(trxn_date, security_code, security_id, security_name)
@@ -209,8 +210,8 @@ class user_profile_ops:
                     nav=100
                     units=security_count*float(Close_Price)/nav
                     print(user[0],Date,security_count,security_count*float(Close_Price),units,nav)
-                    profile_insert='''INSERT INTO stocks.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
-                    data=(user[0],Date,security_count,security_count*float(Close_Price),units,nav)
+                    profile_insert='''INSERT INTO stocks.user_stock_profile_daily(_id, user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s,%s)'''
+                    data=(str(uuid.uuid4()), user[0],Date,security_count,security_count*float(Close_Price),units,nav)
                     cur.execute(profile_insert,data)
                 else:
                     check_nav_vale_query='''SELECT nav,units FROM stocks.user_stock_profile_daily WHERE stock_date=%s and user_id=%s'''
@@ -246,8 +247,8 @@ class user_profile_ops:
             update_nav_query='''UPDATE stocks.user_stock_profile_daily SET nav=profile_value/units WHERE stock_date > %s and user_id=%s'''
             update_nav_query_date=(trxn_date,user_id)
             cur.execute(update_nav_query,update_nav_query_date)
-            update_trxn_flag_query='''UPDATE stocks.user_stocks_trxn SET trxn_flag=1 WHERE trxn_seq_id=%s'''
-            update_trxn_flag_data=(trxn_seq_id,)
+            update_trxn_flag_query='''UPDATE stocks.user_stocks_trxn SET trxn_flag=1 WHERE _id=%s'''
+            update_trxn_flag_data=(_id,)
             print(update_trxn_flag_query, update_trxn_flag_data)
             cur.execute(update_trxn_flag_query,update_trxn_flag_data)
         con.commit()
@@ -268,8 +269,8 @@ class user_profile_ops:
         con.close()
     
 #obj=db_connectionnection()
-#query1='''SELECT user_id,security_code,security_count,trxn_date,trxn_type,slb."Security_Id", trim( TRAILING '.' from slb."Security_Name") as Security_Name, trxn_seq_id FROM stocks.user_stocks_trxn ust
-#JOIN stocks.stock_list_bse slb ON ust.security_code=slb."Security_Code" WHERE ust.user_id=5 order by ust.trxn_date asc'''
+#query1='''SELECT user_id,security_code,security_count,trxn_date,trxn_type,slb."security_id", trim( TRAILING '.' from slb."security_name") as security_name, _id FROM stocks.user_stocks_trxn ust
+#JOIN stocks.stock_list_bse slb ON ust.security_code=slb."security_code" WHERE ust.user_id=5 order by ust.trxn_date asc'''
 '''data=obj.executequery(query1)
 print(data)
 secobj=bse_connection()
