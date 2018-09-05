@@ -1,7 +1,6 @@
 import urllib
 import urllib.parse
 import urllib.request
-import pandas as pd
 import os
 import os.path
 from ast import literal_eval
@@ -29,7 +28,7 @@ formFields = (
     (r'ctl00$ContentPlaceHolder1$ddlGroup', 'Select'),
     (r'ctl00$ContentPlaceHolder1$ddlIndustry', 'Select')
     )
-con = psycopg2.connect("dbname='PortFolio_Tracking' user='portfolio_tracking' host='127.0.0.1' port='5432' password='portfolio_tracking'")
+con = psycopg2.connect("dbname='portfolio_insights' user='admin' host='127.0.0.1' port='5433' password='admin'")
 cur = con.cursor()
 new_stock_insert_query='INSERT INTO stocks.stock_list_bse("security_code", "security_id", "security_name", "status", "security_group", "face_value", "isin_no", "industry", "instrument") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);'
 existring_stock_update_query='''UPDATE stocks.stock_list_bse SET "security_name" = %s, "status" = %s, "security_group" = %s, "face_value" = %s, "isin_no" = %s, "industry"  = %s, "instrument" = %s

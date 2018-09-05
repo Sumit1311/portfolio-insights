@@ -10,6 +10,7 @@
     "bootstrap": "^4.0.0",
     "chai": "^4.0.2",
     "connect-flash": "*",
+    "connect-multiparty": "^2.1.1",
     "connect-redis": "^3.1.0",
     "cookie-parser": "^1.4.1",
     "dropzone": "^5.3.0",
