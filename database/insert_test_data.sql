@@ -1,0 +1,1 @@
+INSERT INTO stock_list_bse (security_code, security_id, security_name, status, security_group, instrument) VALUES(1, 'a', 'xyz', 'a', 'a', 'i1')
