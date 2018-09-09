@@ -42,6 +42,8 @@ ALTER TABLE public.stock_list_bse
   OWNER TO admin;
 
 
+CREATE SEQUENCE IF NOT EXISTS  user_stock_profile_daily_seq_id;
+
 -- Table: public.user_stock_profile_daily
 
 -- DROP TABLE public.user_stock_profile_daily;
@@ -54,7 +56,7 @@ CREATE TABLE public.user_stock_profile_daily
   profile_value double precision,
   units double precision,
   nav double precision,
-  _id character varying(36) NOT NULL,
+  _id bigint PRIMARY KEY nextval('user_stock_profile_daily_seq_id'::regclass),
   CONSTRAINT user_stock_profile_daily_pkey PRIMARY KEY (_id),
   CONSTRAINT fk_user_id FOREIGN KEY (user_id)
       REFERENCES public.nav_user (_id) MATCH SIMPLE
@@ -66,13 +68,15 @@ WITH (
 ALTER TABLE public.user_stock_profile_daily
   OWNER TO admin;
 
+CREATE SEQUENCE IF NOT EXISTS  user_stocks_trxn_seq_id;
+
 -- Table: public.user_stocks_trxn
 
 -- DROP TABLE public.user_stocks_trxn;
 
 CREATE TABLE public.user_stocks_trxn
 (
-  _id character varying(36) NOT NULL,
+  _id bigint PRIMARY KEY nextval('user_stocks_trxn_seq_id'::regclass),
   user_id character varying(36) NOT NULL,
   security_code integer NOT NULL,
   security_count integer NOT NULL,
