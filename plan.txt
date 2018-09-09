@@ -1,0 +1,10 @@
+1. Fill in the security bse
+    - A single thread which runs daily at a particular time
+    - Use node-schedule for this with child_process.spawn
+2. Run scheduler for daily updates
+    - A single thread which runs daily at a particular time
+    - Use node-schedule for this with child_process.spawn
+3. Scheduler for profile update of users
+    - Should have worker pool and each worker should work on 1 userid
+    - workers should be configurable
+    - Use webworker-threads for this
