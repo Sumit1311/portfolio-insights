@@ -15,7 +15,7 @@ log_file_name='portfolio_tracking_calling_block'+now+'.log'
 logging.basicConfig(filename=log_file_name,format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
 
 class db_connection:
-    con = psycopg2.connect("dbname="+os.environ['PFT_DBNAME']+" user='portfolio_tracking' host='127.0.0.1' port='5432' password='portfolio_tracking'")
+    con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
     cur = con.cursor()
     def executequery(self, query):
         self.query=query
@@ -108,8 +108,10 @@ class bse_ops:
             security_data=urllib.request.urlopen(req)
             logging.info('Reurning stocks data from bse')
             return security_data
-        except:
-            logging.exception("Following is the exception occured:")
+        except Exception as e:
+            logging.exception("Following is the exception occured: %s", e)
+            print(e)
+            throw
 
     def get_bse_stocks(self):
         try:
@@ -139,12 +141,12 @@ class bse_ops:
                 )
 
             logging.info('connecting to database')
-            con = psycopg2.connect("dbname='PortFolio_Tracking' user='portfolio_tracking' host='127.0.0.1' port='5432' password='portfolio_tracking'")
+            con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
             cur = con.cursor()
             logging.info('successfully connected to database')
             new_stock_insert_query='INSERT INTO stock_list_bse("security_code", "security_id", "security_name", "status", "security_group", "face_value", "isin_no", "industry", "instrument") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);'
-existring_stock_update_query='''UPDATE stock_list_bse SET "security_name" = %s, "status" = %s, "security_group" = %s, "face_value" = %s, "isin_no" = %s, "industry"  = %s, "instrument" = %s
-WHERE "security_id"= %s'''
+            existring_stock_update_query='''UPDATE stock_list_bse SET "security_name" = %s, "status" = %s, "security_group" = %s, "face_value" = %s, "isin_no" = %s, "industry"  = %s, "instrument" = %s
+            WHERE "security_id"= %s'''
             market_segments=open(os.path.join("data","segment.txt"),"r")
             #market_segments=open("F:\\VIDEOS\\python1\\New folder\\segment.txt","r")
             set_existing_stocks=set()
@@ -159,7 +161,7 @@ WHERE "security_id"= %s'''
                 req=urllib.request.Request(uri,data,headers)
                 res=urllib.request.urlopen(req)
                 #cur.execute('SELECT "Security_Code" FROM stocks.stock_list_bse;')
-                cur.execute('SELECT "security_code" FROM stock_list_bse;')
+                cur.execute('SELECT "security_code" FROM public.stock_list_bse;')
                 present_stock_list=cur.fetchall()
                 for stocks in present_stock_list:
                     #print(stocks[0])
@@ -187,8 +189,10 @@ WHERE "security_id"= %s'''
             cur.close()
             con.close()
             logging.info('Cosed connection to database')
-        except:
-            logging.exception("Following is the exception occured:")
+        except Exception as e:
+            logging.exception("Following is the exception occured: %s", e)
+            print(e)
+            throw
 
 
 class user_profile_ops:
@@ -196,15 +200,17 @@ class user_profile_ops:
         try:
             self.val=val
             return datetime.datetime.strptime(val[0],'%d-%B-%Y')
-        except:
-            logging.exception("Following is the exception occured:")
+        except Exception as e:
+            logging.exception("Following is the exception occured: %s", e)
+            print(e)
+            throw
 
     def user_profile_value_daily(self, user):
         try:
             self.user=user
             logging.debug('Inside user_profile_value_daily called by user_profile_value_daily(self, %s)',self.user)
             logging.info('Connecting to database')
-            con = psycopg2.connect("dbname='PortFolio_Tracking' user='portfolio_tracking' host='127.0.0.1' port='5432' password='portfolio_tracking'")
+            con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
             cur = con.cursor()
             logging.info('Successfully connected to database')
             sum_of_security_count=0
@@ -288,8 +294,10 @@ class user_profile_ops:
             cur.close()
             con.close()
             logging.info('Closed connection to database')
-        except:
-            logging.exception("Following is the exception occured:")
+        except Exception as e:
+            logging.exception("Following is the exception occured: %s", e)
+            print(e)
+            throw
     
     def user_profile_refresh(self, user, refreshtype='only_changed'):
         try:
@@ -298,7 +306,7 @@ class user_profile_ops:
             self.refresh_type=refreshtype
             logging.debug('Inside user_profile_refresh called by user_profile_refresh(self, %s, %s)',self.user,self.refresh_type)
             logging.info('Connecting to database')
-            con = psycopg2.connect("dbname='PortFolio_Tracking' user='portfolio_tracking' host='127.0.0.1' port='5432' password='portfolio_tracking'")
+            con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
             cur = con.cursor()
             logging.info('Successfully connected to database')
             '''if Full refresh deletes the complete profile and recalculate it till todays date else only calculates for changed stocks
@@ -395,15 +403,13 @@ class user_profile_ops:
             cur.close()
             con.close()
             logging.info('Closed database connection')
-        except:
-            logging.exception("Following is the exception occured:")
-            #sys.exit(11)
-            #excep.returnCode = 1
-            throw;
+        except Exception as e:
+            logging.exception("Following is the exception occured: %s", e)
+            print(e)
+            throw
     
 #obj=db_connection()
-#query1='''SELECT user_id,security_code,security_count,trxn_date,trxn_type,slb."Security_Id", trim( TRAILING '.' from slb."Security_Name") as Security_Name, trxn_seq_id FROM stocks.user_stocks_trxn ust
-#JOIN stocks.stock_list_bse slb ON ust.security_code=slb."Security_Code" WHERE ust.user_id=5 order by ust.trxn_date asc'''
+#query1='''SELECT * from public.nav_user'''
 #data=obj.executequery(query1)
 #print(data)
 '''secobj=bse_connection()

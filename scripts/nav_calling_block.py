@@ -60,6 +60,7 @@ try:
             logging.error('command issued is %s \n%s',str(sys.argv),usage_text)
         else:
             logging.error('command issued is %s \n%s',str(sys.argv),usage_text)
-except:
+except Exception as e:
     logging.exception("Following is the exception occured:")
+    print(e)
     sys.exit(1)
