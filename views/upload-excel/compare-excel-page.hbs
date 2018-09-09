@@ -2,7 +2,7 @@
 <style>
     #sortable1, #sortable2, #sortable3 {
         border: 1px solid #eee;
-        width: 142px;
+        width: 200px;
         min-height: 20px;
         list-style-type: none;
         margin: 0;
@@ -14,7 +14,10 @@
         margin: 0 5px 5px 5px;
         padding: 5px;
         font-size: 1.2em;
-        width: 120px;
+        width: 190px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
     }
 </style>
 <script src="/js/jquery-ui.js"></script>
@@ -24,17 +27,69 @@
         $( "#sortable1, #sortable2" ).sortable({
             connectWith: ".connectedSortable"
         }).disableSelection();
+
+
+        /*$('[data-toggle="tooltip"]').tooltip();*/
     });
+
+    var mappedExcelColumns = [];
+    function verifyMappingAndSubmitFile() {
+        //alert('sortable3:'+$("#sortable3 li").length);
+        var noOfColumnsToBeMapped = $("#sortable3 li").length;
+        var noOfColumnsFromExcelMapped = $("#sortable2 li").length;
+        if(noOfColumnsToBeMapped != noOfColumnsFromExcelMapped){
+            alert('Please complete all '+ noOfColumnsToBeMapped +' mappings before proceeding');
+            return false;
+        }else{
+            $( "#sortable2 li" ).each(function( index ) {
+                mappedExcelColumns.push($( this ).text());
+                //console.log( index + ": " + $( this ).text() );
+            });
+            //alert(mappedExcelColumns);
+            var data = new FormData($("#compare-excel-form")[0]);
+            var excelFile = new File(['{{xlsxFile}}'],'{{xlsxFile.name}}', { type: '{{xlsxFile.type}}' });
+            data.append('excelFile', '{{xlsxFile.path}}', '{{xlsxFile.name}}');
+            data.append('securityCode', mappedExcelColumns[0]);
+            data.append('transactionType', mappedExcelColumns[1]);
+            data.append('transactionDate', mappedExcelColumns[2]);
+            data.append('numberOfShares', mappedExcelColumns[3]);
+
+            $.ajax({
+                type: 'POST',
+                url: '/uploadExcelData',
+                data: data,
+                cache : false,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    alert('Success');
+                }
+            });
+            /*alert('filename: '+'xlsxFile.name');
+            $.post( "/uploadExcelData",
+                    enctype: 'multipart/form-data',
+                    {
+                        mappedExcelColumns: mappedExcelColumns,
+                        excelFile: xlsxFile
+                    }
+            );*/
+
+        }
+    }
 </script>
 <article class="content dashboard-page">
     <section class="section">
         <div class="row sameheight-container">
+
             <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
                 <div class="card sameheight-item stats" data-exclude="xs">
                     <div class="card-block">
                         <div class="form-group">
-                            <ul id="sortable1" class="connectedSortable">
-
+                            <ul id="sortable1" class="connectedSortable" style="cursor: -webkit-grab;cursor: grab;">
+                                {{#each keys}}
+                                    <li class="ui-state-highlight" title="{{ this }}"> {{ this }}</li>
+                                {{/each}}
+                                <!--<li class="ui-state-highlight" data-toggle="tooltip" data-placement="left" >Item 1</li>-->
                             </ul>
                         </div>
                     </div>
@@ -44,47 +99,42 @@
             <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
                 <div class="card sameheight-item stats" data-exclude="xs">
                     <div class="card-block">
-                        <div class="form-group">
+                        <div class="form-group" style="width: 50%; float: left;">
+                            <ul id="sortable2" class="connectedSortable" style="cursor: -webkit-grab;cursor: grab; height: 187px;">
+
+                            </ul>
+                        </div>
+                    <!--</div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">-->
+                        <div class="form-group" style="width: 50%;float: left;">
                             <ul id="sortable3" class="connectedSortable">
-                                <li class="ui-state-default">Item 1</li>
-                                <li class="ui-state-default">Item 2</li>
-                                <li class="ui-state-default">Item 3</li>
-                                <li class="ui-state-default">Item 4</li>
-                                <li class="ui-state-default">Item 5</li>
+                                <li class="ui-state-default">Company Code</li>
+                                <li class="ui-state-default">Transaction Type</li>
+                                <li class="ui-state-default">Transaction Date</li>
+                                <li class="ui-state-default">Number Of Shares</li>
                             </ul>
                         </div>
-                    </div>
+                    <!--</div>
                 </div>
             </div>
 
             <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
                 <div class="card sameheight-item stats" data-exclude="xs">
-                    <div class="card-block">
+                    <div class="card-block">-->
                         <div class="form-group">
-                            <ul id="sortable2" class="connectedSortable">
-                                <li class="ui-state-highlight">Item 1</li>
-                                <li class="ui-state-highlight">Item 2</li>
-                                <li class="ui-state-highlight">Item 3</li>
-                                <li class="ui-state-highlight">Item 4</li>
-                                <li class="ui-state-highlight">Item 5</li>
-                                <li class="ui-state-highlight">Item 6</li>
-                                <li class="ui-state-highlight">Item 7</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
-                <div class="card sameheight-item stats" data-exclude="xs">
-                    <div class="card-block">
-                        <div class="form-group">
+                            <form id="compare-excel-form" method="POST" novalidate="" enctype="multipart/form-data">
                             <div>
-                                <label for="exampleFormControlFile1">Submit uploaded file</label>
+                                <label for="exampleFormControlFile1">Submit uploaded file: {{xlsxFile.name}}</label>
                             </div>
                             <div>
-                                <button type="button" class="btn btn-primary">Submit</button>
+                                <button type="button" class="btn btn-primary" onclick="verifyMappingAndSubmitFile()">Submit</button>
                             </div>
+                            </form>
                         </div>
                     </div>
                 </div>

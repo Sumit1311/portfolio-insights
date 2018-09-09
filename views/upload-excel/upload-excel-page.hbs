@@ -1,5 +1,31 @@
+<link rel="stylesheet" href="/js/jquery-ui.css">
+<style>
+    #sortable1, #sortable2, #sortable3 {
+        border: 1px solid #eee;
+        width: 200px;
+        min-height: 20px;
+        list-style-type: none;
+        margin: 0;
+        padding: 5px 0 0 0;
+        float: left;
+        margin-right: 10px;
+    }
+    #sortable1 li, #sortable2 li, #sortable3 li {
+        margin: 0 5px 5px 5px;
+        padding: 5px;
+        font-size: 1.2em;
+        width: 190px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+</style>
+<script src="/js/jquery-ui.js"></script>
 <script>
     $(function() {
+        $("#excelColumns").hide();
+        $("#excelColumnMapping").hide();
+
         $('.custom-file-input').on('change', function () {
             let fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').addClass("selected").html(fileName);
@@ -7,13 +33,13 @@
 
         var uploadExcelValidationSettings = {
             rules: {
-                xlsxFile: {
+                excelFile: {
                     required: true
                 }
             },
             errorPlacement: function(error, element) {
-                if (element.attr("name") == "xlsxFile") {
-                    error.insertAfter($("#xlsxFile"));
+                if (element.attr("name") == "excelFile") {
+                    error.insertAfter($("#excelFile"));
                     element.parents("div.form-group").addClass('has-error');
                 }
                 else {
@@ -21,7 +47,7 @@
                 }
             },
             messages: {
-                xlsxFile: {
+                excelFile: {
                     required : "Please choose xls/xlsx file"
                 }
             },
@@ -37,7 +63,73 @@
 
         $('#upload-excel-form').validate(uploadExcelValidationSettings);
 
+        $( "#sortable1, #sortable2" ).sortable({
+            connectWith: ".connectedSortable"
+        }).disableSelection();
     });
+
+    function doExcelColumnMapping() {
+        var data = new FormData($("#upload-excel-form")[0]);
+        var uploadedExcelColumns = null;
+        $.ajax({
+            type: 'POST',
+            url: '/doExcelColumnMapping',
+            data: data,
+            cache : false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if(data.failure){
+                    alert(data.failure)
+                }
+                uploadedExcelColumns = JSON.parse(data).keys.split(',');
+                //alert('Success');
+                for(var index in uploadedExcelColumns) {
+                    var node = document.createElement("li");
+                    var textNode = document.createTextNode(uploadedExcelColumns[index]);
+                    node.className = "ui-state-highlight";
+                    node.title = uploadedExcelColumns[index];
+                    node.appendChild(textNode);
+                    document.getElementById("sortable1").appendChild(node);
+                }
+                var fileName = document.getElementById("excelFile").value.split('\\');
+                document.getElementById("uploadedFileName").textContent = document.getElementById("uploadedFileName").textContent + fileName[fileName.length - 1];
+                $("#excelColumns").show();
+                $("#excelColumnMapping").show();
+            }
+        });
+    }
+
+    function verifyMappingAndSubmitFile() {
+        var noOfColumnsToBeMapped = $("#sortable3 li").length;
+        var noOfColumnsFromExcelMapped = $("#sortable2 li").length;
+        var mappedExcelColumns = [];
+        if(noOfColumnsToBeMapped != noOfColumnsFromExcelMapped){
+            alert('Please complete all '+ noOfColumnsToBeMapped +' mappings before proceeding');
+            return false;
+        }else{
+            $( "#sortable2 li" ).each(function( index ) {
+                mappedExcelColumns.push($( this ).text());
+            });
+            var data = new FormData($("#upload-excel-form")[0]);
+            data.append('securityCode', mappedExcelColumns[0]);
+            data.append('transactionType', mappedExcelColumns[1]);
+            data.append('transactionDate', mappedExcelColumns[2]);
+            data.append('numberOfShares', mappedExcelColumns[3]);
+
+            $.ajax({
+                type: 'POST',
+                url: '/uploadExcelData',
+                data: data,
+                cache : false,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    alert('Success');
+                }
+            });
+        }
+    }
 </script>
 <article class="content dashboard-page">
     <section class="section">
@@ -45,34 +137,15 @@
 
             <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
                 <div class="card sameheight-item stats" data-exclude="xs">
-                    <div class="card-block">
-                        <form id="upload-excel-form"  action="/doExcelColumnMapping" method="GET" novalidate="">
+                    <div class="card-block" style="height: 100px !important;">
+                        <form id="upload-excel-form" method="POST" novalidate="" enctype="multipart/form-data">
                             <div class="form-group">
                                 <div><label>Upload file</label></div>
-                                <!--<input type="file" class="form-control-file" id="exampleFormControlFile1">
-                                    style="margin-top: 30px; margin-right: 10px;"
-                                -->
                                 <div class="custom-file">
-                                    <input id="xlsxFile" name="xlsxFile" type="file" class="custom-file-input"
-                                           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-                                                   application/vnd.ms-excel, text/csv">
-                                    <label for="xlsxFile" class="custom-file-label">Choose xlsx file</label>
-                                </div>
-                            </div>
-                    <!--/div>
-                </div>
-            </div>
-
-            <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
-                <div class="card sameheight-item stats" data-exclude="xs">
-                    <div class="card-block"-->
-
-                            <div class="form-group">
-                                <div>
-                                    <label for="exampleFormControlFile1">Submit uploaded file</label>
-                                </div>
-                                <div>
-                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                    <input id="excelFile" name="excelFile" type="file" class="custom-file-input" required
+                                           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                                           onchange="doExcelColumnMapping()">
+                                    <label for="excelFile" class="custom-file-label">Choose excel file</label>
                                 </div>
                             </div>
                         </form>
@@ -82,10 +155,53 @@
 
             <div class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
                 <div class="card sameheight-item stats" data-exclude="xs">
-                    <div class="card-block">
+                    <div class="card-block" style="height: 100px !important;">
                         <div class="form-group">
                             <label>Click here to download the sample file</label>
                             <button type="button" class="btn btn-primary">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row sameheight-container">
+
+            <div id="excelColumns" class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">
+                        <div class="form-group">
+                            <ul id="sortable1" class="connectedSortable" style="cursor: -webkit-grab;cursor: grab;">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="excelColumnMapping" class="col col-12 col-sm-12 col-md-6 col-xl-5 stats-col">
+                <div class="card sameheight-item stats" data-exclude="xs">
+                    <div class="card-block">
+                        <div class="form-group" style="width: 50%; float: left;">
+                            <ul id="sortable2" class="connectedSortable" style="cursor: -webkit-grab;cursor: grab; height: 187px;">
+
+                            </ul>
+                        </div>
+                        <div class="form-group" style="width: 50%;float: left;">
+                            <ul id="sortable3" class="connectedSortable">
+                                <li class="ui-state-default">Company Code</li>
+                                <li class="ui-state-default">Transaction Type</li>
+                                <li class="ui-state-default">Transaction Date</li>
+                                <li class="ui-state-default">Number Of Shares</li>
+                            </ul>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="uploadedFileName" id="uploadedFileName">Submit uploaded file: {{excelFile.name}}</label>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-primary" onclick="verifyMappingAndSubmitFile()">Submit</button>
+                            </div>
                         </div>
                     </div>
                 </div>
