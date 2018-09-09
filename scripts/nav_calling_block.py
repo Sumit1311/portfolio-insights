@@ -10,6 +10,11 @@ import logging
 from nav_moduler import user_profile_ops
 from nav_moduler import bse_ops
 import datetime
+
+class Error(Exception):
+   """Base class for other exceptions"""
+   pass
+
 try:
     now = datetime.datetime.now().strftime("%d%m%Y")
     log_file_name='portfolio_tracking_calling_block'+now+'.log'
@@ -29,6 +34,7 @@ try:
     profile_value_ops=['dpv','rpv','crpv']
     program_name=sys.argv[0]
     number_of_arguments=len(sys.argv)
+    return_code=0
     if number_of_arguments < 2:
         logging.error('command issued is %s \n%s',str(sys.argv),usage_text)
     else:
@@ -38,7 +44,9 @@ try:
         boo=bse_ops()
         if number_of_arguments == 2 and module_call == 'bslu':
             logging.debug('Calling nav_stock_list_bse.py')
-            boo.get_bse_stocks()
+            return_code=boo.get_bse_stocks()
+            if return_code is not None and return_code != 0:
+                    raise Error
             logging.debug('Exited from nav_stock_list_bse.py')
         elif number_of_arguments == 2 and module_call != 'bslu':
             logging.error('command issued is %s \%s',str(sys.argv),usage_text)
@@ -46,15 +54,22 @@ try:
             user_inpt=sys.argv[2]
             if module_call == 'dpv':
                 logging.debug('Calling upo.user_profile_value_daily(%s)',user_inpt)
-                upo.user_profile_value_daily(user_inpt)
+                return_code=upo.user_profile_value_daily(user_inpt)
+                if return_code is not None and return_code != 0:
+                    raise Error
                 logging.debug('Exited from upo.user_profile_value_daily(%s)',user_inpt)
             if module_call == 'rpv':
                 logging.debug('Calling upo.user_profile_refresh(%s,''only_changed'')',user_inpt)
-                upo.user_profile_refresh(user_inpt, 'only_changed')
+                return_code=upo.user_profile_refresh(user_inpt, 'only_changed')
+                if return_code is not None and return_code != 0:
+                    raise Error
                 logging.debug('Exited from upo.user_profile_refresh(%s,''only_changed'')',user_inpt)
             if module_call == 'crpv':
                 logging.debug('Calling upo.user_profile_refresh(%s,''full'')',user_inpt)
-                upo.user_profile_refresh(user_inpt, 'full')
+                return_code=upo.user_profile_refresh(user_inpt, 'full')
+                print(return_code)
+                if return_code is not None and return_code != 0:
+                    raise Error
                 logging.debug('Exited from upo.user_profile_refresh(%s,''full'')',user_inpt)
         elif number_of_arguments ==3 and module_call not in profile_value_ops:
             logging.error('command issued is %s \n%s',str(sys.argv),usage_text)
@@ -62,5 +77,5 @@ try:
             logging.error('command issued is %s \n%s',str(sys.argv),usage_text)
 except Exception as e:
     logging.exception("Following is the exception occured:")
-    print(e)
-    sys.exit(1)
+    #print(e)
+    sys.exit(12)

@@ -110,8 +110,8 @@ class bse_ops:
             return security_data
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
-            print(e)
-            throw
+            #print(e)
+            sys.exit(11)
 
     def get_bse_stocks(self):
         try:
@@ -191,8 +191,8 @@ class bse_ops:
             logging.info('Cosed connection to database')
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
-            print(e)
-            throw
+            #print(e)
+            sys.exit(11)
 
 
 class user_profile_ops:
@@ -202,8 +202,8 @@ class user_profile_ops:
             return datetime.datetime.strptime(val[0],'%d-%B-%Y')
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
-            print(e)
-            throw
+            #print(e)
+            sys.exit(11)
 
     def user_profile_value_daily(self, user):
         try:
@@ -216,17 +216,17 @@ class user_profile_ops:
             sum_of_security_count=0
             sum_of_todays_security=0
             user_stock_trxn_query='''WITH BUY_DATA AS (SELECT user_id,security_code,trxn_type,sum(security_count) as B_security_count 
-                                      FROM  stocks.user_stocks_trxn 
+                                      FROM  public.user_stocks_trxn 
                                       WHERE trxn_type='B' AND trxn_flag=1
                                       GROUP BY user_id,security_code,trxn_type),
             SELL_DATA AS (SELECT user_id,security_code,trxn_type,sum(security_count) as S_security_count 
-                                      FROM  stocks.user_stocks_trxn 
+                                      FROM  public.user_stocks_trxn 
                                       WHERE trxn_type='S' AND trxn_flag=1
                                       GROUP BY user_id,security_code,trxn_type)
-                                    SELECT B.user_id,B.security_code,B.B_security_count-COALESCE(S.S_security_count, 0) as final_security_count,slb."Security_Id",
-                                            trim( TRAILING '.' from slb."Security_Name") as security_name
+                                    SELECT B.user_id,B.security_code,B.B_security_count-COALESCE(S.S_security_count, 0) as final_security_count,slb."security_id",
+                                            trim( TRAILING '.' from slb."security_name") as security_name
                                     FROM BUY_DATA B 
-                                    JOIN stocks.stock_list_bse slb on slb."Security_Code"=b.security_code
+                                    JOIN public.stock_list_bse slb on slb."security_code"=b.security_code
                                     LEFT JOIN SELL_DATA S ON B.user_id=S.user_id AND B.security_code=S.security_code
                                     WHERE B.B_security_count-COALESCE(S.S_security_count, 0) >0
                                     ORDER BY user_id,security_code'''
@@ -259,7 +259,7 @@ class user_profile_ops:
                     #print(Date,Close_Price,security_count,security_count*float(Close_Price))
                     is_trxn_exist=is_trxn_exist+1
             logging.debug('sum_of_security_count %s\nsum_of_todays_security %s',sum_of_security_count, sum_of_todays_security)
-            nav_initial_query='''SELECT count(nav) FROM stocks.user_stock_profile_daily WHERE stock_date=(SELECT MIN(trxn_date) FROM stocks.user_stocks_trxn where user_id=%s)'''
+            nav_initial_query='''SELECT count(nav) FROM public.user_stock_profile_daily WHERE stock_date=(SELECT MIN(trxn_date) FROM public.user_stocks_trxn where user_id=%s)'''
             cur.execute(nav_initial_query,user)
             nav_initilization_flag=cur.fetchone()
             logging.debug('nav_initilization_flag %s',nav_initilization_flag[0])
@@ -269,22 +269,22 @@ class user_profile_ops:
                     units=sum_of_todays_security/nav
                     logging.debug('Initialized the nav to 100 and calculated units to %s',units)
                     #print(user[0],Date,sum_of_security_count,sum_of_todays_security,units,nav)
-                    profile_insert='''INSERT INTO stocks.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
+                    profile_insert='''INSERT INTO public.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
                     data=(user[0],Date,sum_of_security_count,sum_of_todays_security,units,nav)
                     cur.execute(profile_insert,data)
                     logging.debug('Inserted stock data usisng SQL %s \ndata %s',profile_insert,data)
                 else:
-                    get_prv_day_units='''SELECT units FROM stocks.user_stock_profile_daily WHERE user_id=%s and stock_date =(SELECT max(stock_date) FROM stocks.user_stock_profile_daily WHERE stock_date< %s)'''
+                    get_prv_day_units='''SELECT units FROM public.user_stock_profile_daily WHERE user_id=%s and stock_date =(SELECT max(stock_date) FROM public.user_stock_profile_daily WHERE stock_date< %s)'''
                     get_prv_day_units_data=(user_id,Date)
                     cur.execute(get_prv_day_units,get_prv_day_units_data)
                     prev_day_units=cur.fetchone()
                     nav=sum_of_todays_security/prev_day_units[0]
                     logging.debug('Fetched units of previuos day from database units %s calculated todays nav=sum_of_todays_security/prev_day_units[0] nav:%s sum_of_todays_security:%s prev_day_units[0]:%s',prev_day_units[0],nav,sum_of_todays_security,prev_day_units[0])
                     #first delete then insert for same day
-                    delete_stock_date_data='''DELETE FROM stocks.user_stock_profile_daily WHERE stock_date=%s'''
+                    delete_stock_date_data='''DELETE FROM public.user_stock_profile_daily WHERE stock_date=%s'''
                     cur.execute(delete_stock_date_data,(Date,))
                     data=(user[0],Date,sum_of_security_count,sum_of_todays_security,prev_day_units[0],nav)
-                    profile_insert='''INSERT INTO stocks.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
+                    profile_insert='''INSERT INTO public.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
                     cur.execute(profile_insert,data)
                     #print(user[0],Date,sum_of_security_count,sum_of_todays_security,prev_day_units[0],nav)
                     logging.debug('Inserted stock data usisng SQL %s \ndata %s',profile_insert,data)
@@ -296,12 +296,11 @@ class user_profile_ops:
             logging.info('Closed connection to database')
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
-            print(e)
-            throw
+            #print(e)
+            sys.exit(11)
     
     def user_profile_refresh(self, user, refreshtype='only_changed'):
         try:
-            a=10/0
             self.user=user
             self.refresh_type=refreshtype
             logging.debug('Inside user_profile_refresh called by user_profile_refresh(self, %s, %s)',self.user,self.refresh_type)
@@ -312,17 +311,17 @@ class user_profile_ops:
             '''if Full refresh deletes the complete profile and recalculate it till todays date else only calculates for changed stocks
             '''
             if self.refresh_type=='full':
-                logging.debug('DELETE FROM stocks.user_stock_profile_daily WHERE user_id=%s',self.user)
-                user_profile_delete_query='''DELETE FROM stocks.user_stock_profile_daily WHERE user_id=%s'''
+                logging.debug('DELETE FROM public.user_stock_profile_daily WHERE user_id=%s',self.user)
+                user_profile_delete_query='''DELETE FROM public.user_stock_profile_daily WHERE user_id=%s'''
                 cur.execute(user_profile_delete_query, user)
-                logging.debug('DELETE FROM stocks.user_stock_profile_daily WHERE user_id=%s completed',self.user)
-                logging.debug('update stocks.user_stocks_trxn set trxn_flag=0 where user_id=%s completed',self.user)
-                user_stock_trxn_update_query='''update stocks.user_stocks_trxn set trxn_flag=0 where user_id=%s'''
+                logging.debug('DELETE FROM public.user_stock_profile_daily WHERE user_id=%s completed',self.user)
+                logging.debug('update public.user_stocks_trxn set trxn_flag=0 where user_id=%s',self.user)
+                user_stock_trxn_update_query='''update public.user_stocks_trxn set trxn_flag=0 where user_id=%s'''
                 cur.execute(user_stock_trxn_update_query, user)
-                logging.debug('update stocks.user_stocks_trxn set trxn_flag=0 where user_id=%s completed',self.user)
+                logging.debug('update public.user_stocks_trxn set trxn_flag=0 where user_id=%s completed',self.user)
                 
-            user_stock_trxn_query='''SELECT user_id,security_code,security_count,trxn_date,trxn_type,slb."Security_Id", trim( TRAILING '.' from slb."Security_Name") as Security_Name, trxn_seq_id FROM stocks.user_stocks_trxn ust
-                                     JOIN stocks.stock_list_bse slb ON ust.security_code=slb."Security_Code" WHERE ust.user_id=%s and trxn_flag=0 order by ust.trxn_date asc'''
+            user_stock_trxn_query='''SELECT user_id,slb.security_code,security_count,trxn_date,trxn_type,slb.security_id, trim( TRAILING '.' from slb.security_name) as security_name,ust._id FROM public.user_stocks_trxn ust
+                                     JOIN public.stock_list_bse slb ON ust.security_code=slb.security_code WHERE ust.user_id=%s and trxn_flag=0 order by ust.trxn_date asc'''
             cur.execute(user_stock_trxn_query, user)
             user_trxns=cur.fetchall()
             if cur.rowcount < 1:
@@ -343,36 +342,36 @@ class user_profile_ops:
                 logging.info('Sorted stock data %s',security_data)
                 for line in security_data:
                     Date,Close_Price=line[0],line[1]
-                    nav_initial_query='''SELECT count(nav) FROM stocks.user_stock_profile_daily WHERE stock_date=(SELECT MIN(trxn_date) FROM stocks.user_stocks_trxn where user_id=%s)'''
+                    nav_initial_query='''SELECT count(nav) FROM public.user_stock_profile_daily WHERE stock_date=(SELECT MIN(trxn_date) FROM public.user_stocks_trxn where user_id=%s)'''
                     cur.execute(nav_initial_query,user)
                     nav_initilization_flag=cur.fetchone()
                     logging.debug('nav_initilization_flag %s',nav_initilization_flag[0])
                     if nav_initilization_flag[0]==0:
                         nav=100
                         units=security_count*float(Close_Price)/nav            
-                        profile_insert='''INSERT INTO stocks.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
+                        profile_insert='''INSERT INTO public.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
                         data=(user[0],Date,security_count,security_count*float(Close_Price),units,nav)
                         cur.execute(profile_insert,data)
                         logging.debug('Initialized nav to 100 and calculated units %s for user %s and inserted data for date %s security_count %s profiele value %s',units,user[0],Date,security_count,security_count*float(Close_Price))
                     else:
-                        check_nav_vale_query='''SELECT nav,units FROM stocks.user_stock_profile_daily WHERE stock_date=%s and user_id=%s'''
+                        check_nav_vale_query='''SELECT nav,units FROM public.user_stock_profile_daily WHERE stock_date=%s and user_id=%s'''
                         cur.execute(check_nav_vale_query,(Date,user_id))
                         check_inser_or_upd=cur.rowcount
                         if check_inser_or_upd==0:
                             logging.debug('Inside insert clause first stock data to be pushed in database for date %s',Date)
-                            get_prv_day_units='''SELECT units FROM stocks.user_stock_profile_daily WHERE user_id=%s and stock_date =(SELECT max(stock_date) FROM stocks.user_stock_profile_daily WHERE stock_date< %s)'''
+                            get_prv_day_units='''SELECT units FROM public.user_stock_profile_daily WHERE user_id=%s and stock_date =(SELECT max(stock_date) FROM public.user_stock_profile_daily WHERE stock_date< %s)'''
                             get_prv_day_units_data=(user_id,Date)
                             cur.execute(get_prv_day_units,get_prv_day_units_data)
                             prev_day_units=cur.fetchone()
                             logging.debug('Fetched previuos days units %s',prev_day_units[0])
                             nav=security_count*float(Close_Price)/prev_day_units[0]
                             data=(user[0],Date,security_count,security_count*float(Close_Price),prev_day_units[0],nav)
-                            profile_insert='''INSERT INTO stocks.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
+                            profile_insert='''INSERT INTO public.user_stock_profile_daily(user_id,stock_date,security_count,profile_value,units,nav) VALUES(%s,%s,%s,%s,%s,%s)'''
                             cur.execute(profile_insert,data)
                             logging.debug('Inserted records using SQL %s \nwith data %s',profile_insert,data)
                         else:
                             logging.debug('Inside update clause for stock data to be pushed in database for date %s',Date)
-                            get_nav='''SELECT nav FROM stocks.user_stock_profile_daily WHERE user_id=%s and stock_date =%s'''
+                            get_nav='''SELECT nav FROM public.user_stock_profile_daily WHERE user_id=%s and stock_date =%s'''
                             get_nav_data=(user_id,Date)
                             cur.execute(get_nav,get_nav_data)
                             nav_data=cur.fetchone()
@@ -386,16 +385,16 @@ class user_profile_ops:
                             profile_value_per_stock_per_date=security_count*float(Close_Price)
                             data=(security_count,profile_value_per_stock_per_date,final_units,user_id,Date)
                             if trxn_type=='B':
-                                profile_update='''UPDATE stocks.user_stock_profile_daily SET  security_count= security_count+%s , profile_value=profile_value+%s, units=units+%s WHERE user_id=%s AND stock_date=%s'''
+                                profile_update='''UPDATE public.user_stock_profile_daily SET  security_count= security_count+%s , profile_value=profile_value+%s, units=units+%s WHERE user_id=%s AND stock_date=%s'''
                             if trxn_type=='S':
-                                profile_update='''UPDATE stocks.user_stock_profile_daily SET  security_count= security_count-%s , profile_value=profile_value-%s, units=units-%s WHERE user_id=%s AND stock_date=%s'''
+                                profile_update='''UPDATE public.user_stock_profile_daily SET  security_count= security_count-%s , profile_value=profile_value-%s, units=units-%s WHERE user_id=%s AND stock_date=%s'''
                             cur.execute(profile_update,data)
                             logging.debug('updating profile value using SQL %s \nand data %s',profile_update,data)
-                update_nav_query='''UPDATE stocks.user_stock_profile_daily SET nav=profile_value/units WHERE stock_date > %s and user_id=%s'''
+                update_nav_query='''UPDATE public.user_stock_profile_daily SET nav=profile_value/units WHERE stock_date > %s and user_id=%s'''
                 update_nav_query_date=(trxn_date,user_id)
                 cur.execute(update_nav_query,update_nav_query_date)
                 logging.debug('Updated profile for nav using SQL %s \nand data %s',update_nav_query,update_nav_query_date)
-                update_trxn_flag_query='''UPDATE stocks.user_stocks_trxn SET trxn_flag=1 WHERE trxn_seq_id=%s'''
+                update_trxn_flag_query='''UPDATE public.user_stocks_trxn SET trxn_flag=1 WHERE _id=%s'''
                 update_trxn_flag_data=(trxn_seq_id,)
                 cur.execute(update_trxn_flag_query,update_trxn_flag_data)
                 logging.debug('updated stock trxn table for trxn_flag with SQL %s \nand data %s',update_trxn_flag_query,update_trxn_flag_data)
@@ -405,8 +404,8 @@ class user_profile_ops:
             logging.info('Closed database connection')
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
-            print(e)
-            throw
+            #print(e)
+            sys.exit(11)
     
 #obj=db_connection()
 #query1='''SELECT * from public.nav_user'''
