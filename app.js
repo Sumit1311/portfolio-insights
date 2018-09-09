@@ -3,6 +3,7 @@ var navPassportHandler = require(process.cwd() + "/lib/navPassportInitializer.js
     navSessionStoreInitializer = require(process.cwd() + "/lib/navSessionStoreInitializer.js"),
     navDatabaseInitializer = require(process.cwd() + "/lib/dao/navDBInitializer.js"),
     navAppInitializer = require(process.cwd() + "/lib/navAppInitializer.js"),
+    navBackgroundTaskInitializer = require(process.cwd() + "/lib/navBackgroundTaskInitializer.js"),
     navRoutesInitializer = require(process.cwd() + "/lib/navRoutesInitializer.js"),
     navHandleBarInitializer = require(process.cwd() + "/lib/navHandleBarInitializer.js"),
     navLogUtil = require(process.cwd() + "/lib/navLogUtil.js");
@@ -13,6 +14,7 @@ navLogUtil.instance("web-server");
 new navDatabaseInitializer()
     .init()
     .then(function () {
+        new navBackgroundTaskInitializer().register();
         //Express App Initialization
         var app = new navAppInitializer().init()
         // Handle Bars Init
