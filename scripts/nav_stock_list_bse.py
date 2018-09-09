@@ -94,3 +94,4 @@ for segment in market_segments:
 con.commit()
 cur.close()
 con.close()
+exit(1);
