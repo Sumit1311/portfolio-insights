@@ -235,7 +235,7 @@ class user_profile_ops:
             logging.debug('Fetching the transactions to process \nFor all user issued SQL to databse %s \nReturned data %s',user_stock_trxn_query,user_trxns)
             is_trxn_exist=0
             for security in user_trxns:
-                user_id,security_code,security_count,security_id,security_name=security[0],security[1],security[2],security[3],security[4]
+                security_code,security_count,security_id,security_name=security[1],security[2],security[3],security[4]
                 security_code=str(security_code)
                 trxn_date=datetime.datetime.now() #(datetime.datetime.today() - datetime.timedelta(days=2))
                 secobj=bse_ops()
