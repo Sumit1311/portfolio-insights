@@ -12,7 +12,7 @@ import sys
 
 now = datetime.datetime.now().strftime("%d%m%Y")
 log_file_name='portfolio_tracking_calling_block'+now+'.log'
-logging.basicConfig(filename=log_file_name,format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
+logging.basicConfig(filename=os.path.join("log",'portfolio_insights_'+now+'.log'),format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
 
 class db_connection:
     con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
