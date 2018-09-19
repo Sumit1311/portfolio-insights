@@ -260,7 +260,7 @@ class user_profile_ops:
                     is_trxn_exist=is_trxn_exist+1
             logging.debug('sum_of_security_count %s\nsum_of_todays_security %s',sum_of_security_count, sum_of_todays_security)
             nav_initial_query='''SELECT count(nav) FROM public.user_stock_profile_daily WHERE stock_date=(SELECT MIN(trxn_date) FROM public.user_stocks_trxn where user_id=%s)'''
-            cur.execute(nav_initial_query,user_id)
+            cur.execute(nav_initial_query,(user_id))
             nav_initilization_flag=cur.fetchone()
             logging.debug('nav_initilization_flag %s',nav_initilization_flag[0])
             if  is_trxn_exist > 0:
@@ -313,16 +313,16 @@ class user_profile_ops:
             if self.refresh_type=='full':
                 logging.debug('DELETE FROM public.user_stock_profile_daily WHERE user_id=%s',self.user)
                 user_profile_delete_query='''DELETE FROM public.user_stock_profile_daily WHERE user_id=%s'''
-                cur.execute(user_profile_delete_query, user)
+                cur.execute(user_profile_delete_query, (user))
                 logging.debug('DELETE FROM public.user_stock_profile_daily WHERE user_id=%s completed',self.user)
                 logging.debug('update public.user_stocks_trxn set trxn_flag=0 where user_id=%s',self.user)
                 user_stock_trxn_update_query='''update public.user_stocks_trxn set trxn_flag=0 where user_id=%s'''
-                cur.execute(user_stock_trxn_update_query, user)
+                cur.execute(user_stock_trxn_update_query, (user))
                 logging.debug('update public.user_stocks_trxn set trxn_flag=0 where user_id=%s completed',self.user)
                 
             user_stock_trxn_query='''SELECT user_id,slb.security_code,security_count,trxn_date,trxn_type,slb.security_id, trim( TRAILING '.' from slb.security_name) as security_name,ust._id FROM public.user_stocks_trxn ust
                                      JOIN public.stock_list_bse slb ON ust.security_code=slb.security_code WHERE ust.user_id=%s and trxn_flag=0 order by ust.trxn_date asc'''
-            cur.execute(user_stock_trxn_query, self.user)
+            cur.execute(user_stock_trxn_query, (self.user))
             user_trxns=cur.fetchall()
             if cur.rowcount < 1:
                 logging.debug('No data to refresh the profile')
@@ -343,7 +343,7 @@ class user_profile_ops:
                 for line in security_data:
                     Date,Close_Price=line[0],line[1]
                     nav_initial_query='''SELECT count(nav) FROM public.user_stock_profile_daily WHERE stock_date=(SELECT MIN(trxn_date) FROM public.user_stocks_trxn where user_id=%s)'''
-                    cur.execute(nav_initial_query,user)
+                    cur.execute(nav_initial_query,(user))
                     nav_initilization_flag=cur.fetchone()
                     logging.debug('nav_initilization_flag %s',nav_initilization_flag[0])
                     if nav_initilization_flag[0]==0:
