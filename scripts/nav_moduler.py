@@ -322,7 +322,7 @@ class user_profile_ops:
                 
             user_stock_trxn_query='''SELECT user_id,slb.security_code,security_count,trxn_date,trxn_type,slb.security_id, trim( TRAILING '.' from slb.security_name) as security_name,ust._id FROM public.user_stocks_trxn ust
                                      JOIN public.stock_list_bse slb ON ust.security_code=slb.security_code WHERE ust.user_id=%s and trxn_flag=0 order by ust.trxn_date asc'''
-            cur.execute(user_stock_trxn_query, user)
+            cur.execute(user_stock_trxn_query, self.user)
             user_trxns=cur.fetchall()
             if cur.rowcount < 1:
                 logging.debug('No data to refresh the profile')
