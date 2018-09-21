@@ -9,3 +9,16 @@
     - Should have worker pool and each worker should work on 1 userid
     - workers should be configurable
     - Use webworker-threads for this
+
+Points for Raju :
+    - No need to do full refresh in case of modify or add or delete
+        - Addition is straight forward
+        - In case of modify or delete keep the previous row in seperate table
+        (At a time allow only one change per trxn)
+    - Optimize call of get_bse_stock_data
+    - Check with Akshay about changing the profile value next day
+
+Points for Jinesh :
+    - Check if amount related front end code done
+    - Check if dashboard design finalized
+    - Reupload functionality to reset database table
