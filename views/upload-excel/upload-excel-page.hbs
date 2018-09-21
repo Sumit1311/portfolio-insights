@@ -99,7 +99,17 @@
             }
         });
     }
-
+    function preSubmitHandler(){
+e.preventDefault();
+$('#confirm').modal({
+      backdrop: 'static',
+      keyboard: false
+    })
+    .one('click', '#delete', function(e) {
+      //$form.triggeir('submit');
+      verifyMappingAndSubmitFile();
+    });
+    }
     function verifyMappingAndSubmitFile() {
         var noOfColumnsToBeMapped = $("#sortable3 li").length;
         var noOfColumnsFromExcelMapped = $("#sortable2 li").length;
@@ -116,6 +126,7 @@
             data.append('transactionType', mappedExcelColumns[1]);
             data.append('transactionDate', mappedExcelColumns[2]);
             data.append('numberOfShares', mappedExcelColumns[3]);
+            data.append('transactionAmount', mappedExcelColumns[4]);
 
             $.ajax({
                 type: 'POST',
@@ -193,6 +204,7 @@
                                 <li class="ui-state-default">Transaction Type</li>
                                 <li class="ui-state-default">Transaction Date</li>
                                 <li class="ui-state-default">Number Of Shares</li>
+                                <li class="ui-state-default">Amount</li>
                             </ul>
                         </div>
                         <div class="form-group">
@@ -210,3 +222,12 @@
         </div>
     </section>
 </article>
+<div id="confirm" class="modal hide fade">
+  <div class="modal-body">
+    Are you sure?
+  </div>
+  <div class="modal-footer">
+    <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete</button>
+    <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+  </div>
+</div>
