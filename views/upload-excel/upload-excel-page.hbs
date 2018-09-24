@@ -99,18 +99,27 @@
             }
         });
     }
-    function preSubmitHandler(){
-e.preventDefault();
-$('#confirm').modal({
+    function preSubmitHandler(shouldMerge){
+//e.preventDefault();
+    {{#if dataExist}}
+        if(shouldMerge) {
+            $("#_nav_confirm_modal .modal-body").html("<p>You have choosed to merge the portfolio.</p><br><p><b>Note : </b>This will merge the excel portfolio with existing portfolio in database. Please make sure you do not have existing data in excel file.</p>");
+        } else {
+            $("#_nav_confirm_modal .modal-body").html("<p>You have choosed to over write the portfolio.</p><br><p><b>Note : </b>This will overwrite the whole portfolio in database with excel portfolio.</p>");
+        }
+    {{else}}
+        $("#_nav_confirm_modal .modal-body").html("<p>Are you sure you want to upload the excel file with given column mapping?</p>");
+    {{/if}}
+    $('#_nav_confirm_modal').modal({
       backdrop: 'static',
       keyboard: false
     })
-    .one('click', '#delete', function(e) {
+    .one('click', '#_nav_modal_button', function(e) {
       //$form.triggeir('submit');
-      verifyMappingAndSubmitFile();
+      verifyMappingAndSubmitFile(shouldMerge);
     });
     }
-    function verifyMappingAndSubmitFile() {
+    function verifyMappingAndSubmitFile(shouldMerge) {
         var noOfColumnsToBeMapped = $("#sortable3 li").length;
         var noOfColumnsFromExcelMapped = $("#sortable2 li").length;
         var mappedExcelColumns = [];
@@ -127,7 +136,11 @@ $('#confirm').modal({
             data.append('transactionDate', mappedExcelColumns[2]);
             data.append('numberOfShares', mappedExcelColumns[3]);
             data.append('transactionAmount', mappedExcelColumns[4]);
-
+            if(shouldMerge){
+                data.append('actionType', 'merge');
+            } else {
+                data.append('actionType', 'overwrite');
+            }
             $.ajax({
                 type: 'POST',
                 url: '/uploadExcelData',
@@ -136,7 +149,13 @@ $('#confirm').modal({
                 processData: false,
                 contentType: false,
                 success: function (data) {
+                    $('#_nav_confirm_modal').modal('hide');
                     alert('Success');
+
+                },
+                error: function(data){
+                    $('#_nav_confirm_modal').modal('hide');
+                    alert("failure");
                 }
             });
         }
@@ -194,7 +213,7 @@ $('#confirm').modal({
                 <div class="card sameheight-item stats" data-exclude="xs">
                     <div class="card-block">
                         <div class="form-group" style="width: 50%; float: left;">
-                            <ul id="sortable2" class="connectedSortable" style="cursor: -webkit-grab;cursor: grab; height: 187px;">
+                            <ul id="sortable2" class="connectedSortable" style="cursor: -webkit-grab;cursor: grab; height: 236px;">
 
                             </ul>
                         </div>
@@ -212,7 +231,12 @@ $('#confirm').modal({
                                 <label for="uploadedFileName" id="uploadedFileName">Submit uploaded file: {{excelFile.name}}</label>
                             </div>
                             <div>
-                                <button type="button" class="btn btn-primary" onclick="verifyMappingAndSubmitFile()">Submit</button>
+                                {{#if dataExist}}
+                                <button type="button" class="btn btn-primary" onclick="preSubmitHandler(1)">Merge Portfolio</button>
+                                <button type="button" class="btn btn-primary" onclick="preSubmitHandler(0)">Overwrite Portfolio</button>
+                                {{else}}
+                                <button type="button" class="btn btn-primary" onclick="preSubmitHandler(0)">Upload Portfolio</button>
+                                {{/if}}
                             </div>
                         </div>
                     </div>
@@ -220,14 +244,23 @@ $('#confirm').modal({
             </div>
 
         </div>
+        <div id="_nav_confirm_modal" class="modal hide fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+
+                        <h4 class="modal-title">Caution</h4>
+                        <button type="button" class="close pull-left" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" id="_nav_modal_button" class="btn btn-primary">Proceed</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->        </div>
+
     </section>
 </article>
-<div id="confirm" class="modal hide fade">
-  <div class="modal-body">
-    Are you sure?
-  </div>
-  <div class="modal-footer">
-    <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete</button>
-    <button type="button" data-dismiss="modal" class="btn">Cancel</button>
-  </div>
-</div>

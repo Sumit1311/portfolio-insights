@@ -1,0 +1,70 @@
+<link rel="stylesheet" href="/js/jquery-ui.css">
+<style>
+    #sortable1, #sortable2, #sortable3 {
+        border: 1px solid #eee;
+        width: 200px;
+        min-height: 20px;
+        list-style-type: none;
+        margin: 0;
+        padding: 5px 0 0 0;
+        float: left;
+        margin-right: 10px;
+    }
+    #sortable1 li, #sortable2 li, #sortable3 li {
+        margin: 0 5px 5px 5px;
+        padding: 5px;
+        font-size: 1.2em;
+        width: 190px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+</style>
+<script src="/js/jquery-ui.js"></script>
+
+
+<article class="content dashboard-page">
+    <section class="section">
+        <div class="row sameheight-container">
+
+            <div class="col col-12 stats-col">
+                <div class="card sameheight-item stats"  style="border-radius: 10px;" data-exclude="xs">
+                    <div class="card-block" style="">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+
+                            <th>Security Id</th>
+                            <th>Security Name</th>
+                            <th>Security Count</th>
+                            <th>Transaction Amount</th>
+                            <th>Date Bought/Sell</th>
+                            <th>Transaction Type</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                                {{#each portfolioData}}
+                                    <tr>
+                                    <input type="hidden" name="transactionId" value="{{this._id}}"/>
+                                    <td>{{this.security_id}}</td>
+                                    <td>{{this.security_name}}</td>
+                                    <td>{{this.security_count}}</td>
+                                    <td>{{this.trxn_amount}}</td>
+                                    <td>{{this.trxn_date}}</td>
+                                    <td>{{this.trxn_type}}</td>
+                                    </tr>
+                                {{/each}}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </section>
+</article>
