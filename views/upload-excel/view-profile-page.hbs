@@ -60,7 +60,8 @@
                 <div class="card sameheight-item stats"  style="border-radius: 10px;" data-exclude="xs">
                     <div class="card-block" style="">
                         <div class="title-block">
-                            <h4 class="title">Current Portfolio</h4>
+                            <h4 class="title col-md-6"></h4>
+                            <div class="col-md-6"> <button type="button" class="btn btn-primary pull-right" onclick="showModal('add')"><span class="glyphicon glyphicon-plus"></span></button></div>
                         </div>
                         <table class="table table-hover">
                             <thead>
@@ -74,12 +75,13 @@
                             <th>Buy/Sell</th>
                             <th>Edit</th>
                                 <th>Delete</th>
+                                <th>Undo</th>
                             </tr>
                             </thead>
                             <tbody>
 
-                                {{#each portfolioData}}
-                                    <tr>
+                                {{#each portfolioData.filteredData}}
+                                    <tr {{#if this.trxn_flag}}class="success"{{else}}class="active"{{/if}}>
                                     <input type="hidden" name="transactionId" value="{{this._id}}"/>
                                     <td>{{this.security_id}}</td>
                                     <td>{{this.security_name}}</td>
@@ -87,8 +89,13 @@
                                     <td>{{this.trxn_amount}}</td>
                                     <td>{{this.trxn_date}}</td>
                                     <td>{{this.trxn_type}}</td>
-                                        <td><p data-toggle="tooltip" data-backdrop="static" data-keyboard="false" title="Edit"><button class="btn btn-primary btn-xs" data-backdrop="static" data-keyboard="false" data-title="Edit" data-toggle="modal" data-target="#edit" onclick="showEditModal()"><span class="glyphicon glyphicon-pencil"></span></button></p></td>
-                                        <td><p data-placement="top" data-toggle="tooltip" title="Delete"><button class="btn btn-danger btn-xs" data-title="Delete" data-toggle="modal" data-target="#delete" onclick="showDeleteModal()"><span class="glyphicon glyphicon-trash"></span></button></p></td>
+                                    <td><p data-toggle="tooltip" data-backdrop="static" data-keyboard="false" title="Edit"><button class="btn btn-primary btn-xs" data-backdrop="static" data-keyboard="false" data-title="Edit" data-toggle="modal" data-target="#edit" onclick="showModal('edit')"><span class="glyphicon glyphicon-pencil"></span></button></p></td>
+                                    <td><p data-placement="top" data-toggle="tooltip" title="Delete"><button class="btn btn-danger btn-xs" data-title="Delete" data-toggle="modal" data-target="#delete" onclick="showModal('delete')"><span class="glyphicon glyphicon-trash"></span></button></p></td>
+                                    <td>
+                                        {{#isModified this._id}}
+                                        <p data-placement="top" data-toggle="tooltip" title="Undo"><button class="btn btn-default btn-xs" data-title="Delete" data-toggle="modal" data-target="#undo" onclick="showModal('undo')">Undo</button></p></td>
+                                        {{/isModified}}
+                                    </td>
                                     </tr>
                                 {{/each}}
 
@@ -156,19 +163,59 @@
             <!-- /.modal-dialog -->
         </div>
 
+        <div class="modal fade" id="undo" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title custom_align" id="Heading">Undo operation for this entry</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure you want to undo this Record?</div>
+
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+
+        <div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title custom_align" id="Heading">Undo operation for this entry</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure you want to undo this Record?</div>
+
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+
     </section>
 </article>
 <script>
     $("[data-toggle=tooltip]").tooltip();
 
-    function showEditModal(){
-        $('#edit').modal({
-            backdrop: 'static',
-            keyboard: false
-        })
-    }
-    function showDeleteModal(){
-        $('#delete').modal({
+    function showModal(id){
+        $('#'+id).modal({
             backdrop: 'static',
             keyboard: false
         })
