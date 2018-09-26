@@ -17,6 +17,7 @@ Points for Raju :
         (At a time allow only one change per trxn)
     - Optimize call of get_bse_stock_data
     - Check with Akshay about changing the profile value next day
+    - Need to check if the transaction is active before adding entry in daily profile refresher()
 
 Points for Jinesh :
     - Check if amount related front end code done
