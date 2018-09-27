@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="/js/jquery-ui.css">
 <link rel="stylesheet" href="/css/bootstrap.css">
+<link rel="stylesheet" href="/css/bootstrap-select.min.css">
 <style>
     #sortable1, #sortable2, #sortable3 {
         border: 1px solid #eee;
@@ -47,7 +48,11 @@
     }
 </style>
 <script src="/js/jquery-ui.js"></script>
-<script src="/js/bootstrap.js"></script>
+<script src="/js/bootstrap.js"></script><!-- Latest compiled and minified CSS -->
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="/js/bootstrap-select.min.js"></script>
 
 
 
@@ -61,7 +66,7 @@
                     <div class="card-block" style="">
                         <div class="title-block">
                             <h4 class="title col-md-6"></h4>
-                            <div class="col-md-6"> <button type="button" class="btn btn-primary pull-right" onclick="showModal('add')"><span class="glyphicon glyphicon-plus"></span></button></div>
+                            <div class="col-md-6"> <button type="button" class="btn btn-primary pull-right modal-trigger" onclick="showModal('add')"><span class="glyphicon glyphicon-plus"></span></button></div>
                         </div>
                         <table class="table table-hover">
                             <thead>
@@ -75,7 +80,6 @@
                             <th>Buy/Sell</th>
                             <th>Edit</th>
                                 <th>Delete</th>
-                                <th>Undo</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -89,13 +93,8 @@
                                     <td>{{this.trxn_amount}}</td>
                                     <td>{{this.trxn_date}}</td>
                                     <td>{{this.trxn_type}}</td>
-                                    <td><p data-toggle="tooltip" data-backdrop="static" data-keyboard="false" title="Edit"><button class="btn btn-primary btn-xs" data-backdrop="static" data-keyboard="false" data-title="Edit" data-toggle="modal" data-target="#edit" onclick="showModal('edit')"><span class="glyphicon glyphicon-pencil"></span></button></p></td>
-                                    <td><p data-placement="top" data-toggle="tooltip" title="Delete"><button class="btn btn-danger btn-xs" data-title="Delete" data-toggle="modal" data-target="#delete" onclick="showModal('delete')"><span class="glyphicon glyphicon-trash"></span></button></p></td>
-                                    <td>
-                                        {{#isModified this._id}}
-                                        <p data-placement="top" data-toggle="tooltip" title="Undo"><button class="btn btn-default btn-xs" data-title="Delete" data-toggle="modal" data-target="#undo" onclick="showModal('undo')">Undo</button></p></td>
-                                        {{/isModified}}
-                                    </td>
+                                    <td><p data-toggle="tooltip" data-backdrop="static" data-keyboard="false" title="Edit"><button class="btn btn-primary btn-xs modal-trigger" data-backdrop="static" data-keyboard="false" data-title="Edit" data-toggle="modal" data-target="#edit" onclick="showModal('edit')"><span class="glyphicon glyphicon-pencil"></span></button></p></td>
+                                    <td><p data-placement="top" data-toggle="tooltip" title="Delete"><button class="btn btn-danger btn-xs modal-trigger" data-title="Delete" data-toggle="modal" data-target="#delete" onclick="showModal('delete')"><span class="glyphicon glyphicon-trash"></span></button></p></td>
                                     </tr>
                                 {{/each}}
 
@@ -108,27 +107,45 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h4 class="modal-title custom_align" id="Heading">Edit Your Detail</h4>
+                            <h4 class="modal-title custom_align" id="Heading">Edit Transaction</h4>
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
 
                         </div>
+                        <form method="POST" action="/edit">
                         <div class="modal-body">
-                            <div class="form-group">
-                                <input class="form-control " type="text" placeholder="Mohsin">
-                            </div>
-                            <div class="form-group">
 
-                                <input class="form-control " type="text" placeholder="Irshad">
-                            </div>
-                            <div class="form-group">
-                                <textarea rows="2" class="form-control" placeholder="CB 106/107 Street # 11 Wah Cantt Islamabad Pakistan"></textarea>
+                            <div class="modal-body">
+                                <input type="hidden" name="id" value="">
+                                <div class="form-group">
+                                    -<label>Select Security Name :</label>
+                                    <select class="form-control selectpicker" type="text" name="securityCode">
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Security Count  :</label>
+                                    <input class="form-control " type="text" name="numberOfShares">
+                                </div>
+                                <div class="form-group">
+                                    <label>Transaction Amount :</label>
+                                    <input class="form-control " type="text" name="transactionAmount">
+                                </div>
+                                <div class="form-group">
+                                    <label>Transaction Date :</label>
+                                    <input class="form-control" type="text" name="transactionDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>Transaction Type :</label>
+                                    <select class="form-control selectpicker" type="text" name="transactionType">
+                                        <option value="Buy">Buy</option>
+                                        <option value="Sell">Sell</option>
+                                    </select>
+                                </div>
 
-
-                            </div>
                         </div>
                         <div class="modal-footer ">
                             <button type="button" class="btn btn-warning btn-lg" style="width: 100%;"><span class="glyphicon glyphicon-ok-sign"></span> Update</button>
                         </div>
+                        </form>
                     </div>
                     <!-- /.modal-content -->
                 </div>
@@ -148,8 +165,9 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
 
                     </div>
+                    <form method="POST" action="/delete">
                     <div class="modal-body">
-
+                        <input type="hidden" name="id" value="">
                         <div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure you want to delete this Record?</div>
 
                     </div>
@@ -157,29 +175,7 @@
                         <button type="button" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
                     </div>
-                </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
-
-        <div class="modal fade" id="undo" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title custom_align" id="Heading">Undo operation for this entry</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-
-                    </div>
-                    <div class="modal-body">
-
-                        <div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure you want to undo this Record?</div>
-
-                    </div>
-                    <div class="modal-footer ">
-                        <button type="button" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
-                    </div>
+                    </form>
                 </div>
                 <!-- /.modal-content -->
             </div>
@@ -190,34 +186,66 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title custom_align" id="Heading">Undo operation for this entry</h4>
+                        <h4 class="modal-title custom_align" id="Heading">Transaction Details</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
 
                     </div>
-                    <div class="modal-body">
+                    <form method="POST" action="/add">
+                        <div class="modal-body">
 
-                        <div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure you want to undo this Record?</div>
+                            <div class="form-group">
+                                <label>Select Security Name :</label>
+                                <select class="form-control selectpicker" type="text" name="securityCode">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Security Count  :</label>
+                                <input class="form-control " type="text" name="numberOfShares">
+                            </div>
+                            <div class="form-group">
+                                <label>Transaction Amount :</label>
+                                <input class="form-control " type="text" name="transactionAmount">
+                            </div>
+                            <div class="form-group">
+                                <label>Transaction Date :</label>
+                                <input class="form-control" type="text" name="transactionDate">
+                            </div>
+                            <div class="form-group">
+                                <label>Transaction Type :</label>
+                                <select class="form-control selectpicker" type="text" name="transactionType">
+                                    <option value="Buy">Buy</option>
+                                    <option value="Sell">Sell</option>
+                                </select>
+                            </div>
 
-                    </div>
-                    <div class="modal-footer ">
-                        <button type="button" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
-                    </div>
+                        </div>
+                        <div class="modal-footer ">
+                            <button type="button" class="btn btn-warning btn-lg" style="width: 100%;"><span class="glyphicon glyphicon-ok-sign"></span> Add</button>
+                        </div>
+                    </form>
                 </div>
                 <!-- /.modal-content -->
             </div>
             <!-- /.modal-dialog -->
         </div>
 
+
     </section>
 </article>
 <script>
     $("[data-toggle=tooltip]").tooltip();
 
+    $("")
+
     function showModal(id){
+        debugger;
+        if(id == "edit" || id == "delete") {
+            $("#" + id + " form input[type='hidden']").val().replace()
+        }
         $('#'+id).modal({
             backdrop: 'static',
             keyboard: false
         })
     }
+    $('.selectpicker').selectpicker();
 </script>
