@@ -22,7 +22,42 @@ class db_connection:
         self.cur.execute(query)
         return_data=self.cur.fetchall()
         return return_data
+from html.parser import HTMLParser
 
+class MyHTMLParser(HTMLParser):
+    try:
+        url=''
+        def handle_starttag(self, tag, attrs):
+            if tag == 'input':
+                value=''
+                name=''
+                for attr in attrs:
+                    if attr[0] == 'name':
+                        name=attr[1]
+                    if attr[0] == 'value':
+                        value=attr[1]
+                if value == '':
+                    value='default'
+                if name in ['__EVENTVALIDATION','__VIEWSTATE'] and value not in ['deafult',None]:
+                    tag_pair=(name, value)
+                    print(self.url)
+                    print(tag_pair)
+                    logging.info('connecting to database')
+                    con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
+                    cur = con.cursor()
+                    logging.info('successfully connected to database')
+                    update_session_variables="UPDATE public.session_variables SET var_value=%s WHERE var_site=%s and var_name=%s and var_type='FormFields' and is_active='Y'"
+                    cur.execute(update_session_variables,(value,self.url,name))
+                    logging.debug('Updated',name)
+                    con.commit()
+                    cur.close()
+                    con.close()
+                    logging.info('Cosed connection to database')
+    except Exception as e:
+        logging.exception("Following is the exception occured: %s", e)
+        #print(e)
+        sys.exit(11)
+                
 class bse_ops:
     logging.info('Inside bse_ops class')
     bse_hist_data_uri="https://www.bseindia.com/markets/equity/EQReports/StockPrcHistori.aspx?expandable=7&flag=0"
@@ -62,13 +97,31 @@ class bse_ops:
         (r'ctl00$ContentPlaceHolder1$txtToDate', r'01/05/2018')
         )
     
-    def get_bse_stock_data(self, trxn_date, security_code, security_id, security_name):
+    try:
+        bse_hist_data_uri_formFields_list=list(bse_hist_data_uri_formFields)
+        get_session_variables_query="SELECT var_name, case when var_value is null then '' else var_value end as var_value FROM public.session_variables WHERE var_site=%s and var_type='FormFields' and var_name in ('__EVENTVALIDATION','__VIEWSTATE') order by var_seq_id asc"
+        logging.info('connecting to database')
+        con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
+        cur = con.cursor()
+        cur.execute(get_session_variables_query,(bse_hist_data_uri,))
+        form=cur.fetchall()
+        ff_view_state='(r\'__VIEWSTATE\',r\''+form[0][1]+'\')'
+        bse_hist_data_uri_formFields_list[2]=literal_eval(ff_view_state)
+        ff_event_validation='(r\'__EVENTVALIDATION\',r\''+form[1][1]+'\')'
+        bse_hist_data_uri_formFields_list[4]=literal_eval(ff_event_validation)
+        bse_hist_data_uri_formFields=tuple(bse_hist_data_uri_formFields_list)
+    except Exception as e:
+        logging.exception("Following is the exception occured: %s", e)
+        #print(e)
+        sys.exit(11)
+        
+    def get_bse_stock_data(self, trxn_date, security_code, security_id, security_name, trxn_end_date=datetime.datetime.now()):
         try:
             logging.info('Inside get_bse_stock_data function called get_bse_stock_data(self, %s, %s, %s, %s)',trxn_date, security_code, security_id, security_name)
             user_stock_list=list()
             security_start_date=trxn_date.strftime("%m/%d/%Y")
             txtFromDate=trxn_date.strftime("%d/%m/%Y") #'22/04/2017'
-            now = datetime.datetime.now()
+            now = trxn_end_date
             if now.hour < 18 :
                 security_end_date=(datetime.datetime.today() - datetime.timedelta(days=1)).strftime("%m/%d/%Y")
                 txtToDate=(datetime.datetime.today() - datetime.timedelta(days=1)).strftime("%d/%m/%Y")
@@ -101,9 +154,9 @@ class bse_ops:
             modify_formFields[27]=literal_eval(ff_txtToDate)
             bse_hist_data_uri_formFields=tuple(modify_formFields)
             logging.info('Reqesting data from bse for stocks')
-            #logging.debug('urllib.parse.urlencode(%s).encode("utf-8")',bse_hist_data_uri_formFields)
+            logging.debug('urllib.parse.urlencode(%s).encode("utf-8")',bse_hist_data_uri_formFields)
             data = urllib.parse.urlencode(bse_hist_data_uri_formFields).encode("utf-8")
-            #logging.debug('urllib.request.Request(%s,%s,%s)',self.bse_hist_data_uri,data,self.bse_hist_data_uri_headers)
+            logging.debug('urllib.request.Request(%s,%s,%s)',self.bse_hist_data_uri,data,self.bse_hist_data_uri_headers)
             req=urllib.request.Request(self.bse_hist_data_uri,data,self.bse_hist_data_uri_headers)
             security_data=urllib.request.urlopen(req)
             logging.info('Reurning stocks data from bse')
@@ -139,7 +192,18 @@ class bse_ops:
                 (r'ctl00$ContentPlaceHolder1$ddlGroup', 'Select'),
                 (r'ctl00$ContentPlaceHolder1$ddlIndustry', 'Select')
                 )
-
+            formFields_list=list(formFields)
+            get_session_variables_query="SELECT var_name, case when var_value is null then '' else var_value end as var_value FROM public.session_variables WHERE var_site=%s and var_type='FormFields' and var_name in ('__EVENTVALIDATION','__VIEWSTATE') order by var_seq_id asc"
+            logging.info('connecting to database')
+            con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
+            cur = con.cursor()
+            cur.execute(get_session_variables_query,(uri,))
+            form=cur.fetchall()
+            ff_view_state='(r\'__VIEWSTATE\',r\''+form[0][1]+'\')'
+            formFields_list[2]=literal_eval(ff_view_state)
+            ff_event_validation='(r\'__EVENTVALIDATION\',r\''+form[1][1]+'\')'
+            formFields_list[4]=literal_eval(ff_view_state)
+            formFields_list=tuple(formFields_list)
             logging.info('connecting to database')
             con = psycopg2.connect("dbname="+os.environ['DB_NAME']+" user="+os.environ['DB_USER']+" host="+os.environ['DB_HOST']+" port="+os.environ['DB_PORT']+" password="+os.environ['DB_PASS'])
             cur = con.cursor()
@@ -189,6 +253,17 @@ class bse_ops:
             cur.close()
             con.close()
             logging.info('Cosed connection to database')
+        except ValueError as e:
+            logging.exception("Following is the exception occured: %s", e)
+            if 'not enough values to unpack' in str(e):
+                uri='https://www.bseindia.com/corporates/List_Scrips.aspx'
+                req=urllib.request.Request(uri)
+                res=urllib.request.urlopen(req)
+                page_data_str=res.read().decode('utf-8')
+                parser = MyHTMLParser()
+                MyHTMLParser.url=uri
+                parser.feed(page_data_str)
+            sys.exit(11)
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
             #print(e)
@@ -294,6 +369,17 @@ class user_profile_ops:
             cur.close()
             con.close()
             logging.info('Closed connection to database')
+        except ValueError as e:
+            logging.exception("Following is the exception occured: %s", e)
+            if 'not enough values to unpack' in str(e):
+                uri='https://www.bseindia.com/markets/equity/EQReports/StockPrcHistori.aspx?expandable=7&flag=0'
+                req=urllib.request.Request(uri)
+                res=urllib.request.urlopen(req)
+                page_data_str=res.read().decode('utf-8')
+                parser = MyHTMLParser()
+                MyHTMLParser.url=uri
+                parser.feed(page_data_str)
+            sys.exit(11)
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
             #print(e)
@@ -340,6 +426,7 @@ class user_profile_ops:
                     security_data.append((Date,Close_Price))
                 security_data.sort(key=self.sortFirst)
                 logging.info('Sorted stock data %s',security_data)
+                is_calculated='No'
                 for line in security_data:
                     Date,Close_Price=line[0],line[1]
                     nav_initial_query='''SELECT count(nav) FROM public.user_stock_profile_daily WHERE stock_date=(SELECT MIN(trxn_date) FROM public.user_stocks_trxn where user_id=%s)'''
@@ -380,6 +467,10 @@ class user_profile_ops:
                             if Date==trxn_date.strftime("%d-%B-%Y"):
                                 units=security_count*float(Close_Price)/nav_data[0]
                                 #print(Date, trxn_date, units)
+                                is_calculated='Yes'
+                            elif is_calculated=='No':
+                                #get data for previous days trxn *************************trxn_end_date function modified
+                                is_calculated='Yes'
                             final_units=units
                             #print('final_units: ' ,final_units)
                             profile_value_per_stock_per_date=security_count*float(Close_Price)
@@ -402,6 +493,17 @@ class user_profile_ops:
             cur.close()
             con.close()
             logging.info('Closed database connection')
+        except ValueError as e:
+            logging.exception("Following is the exception occured: %s", e)
+            if 'not enough values to unpack' in str(e):
+                uri='https://www.bseindia.com/markets/equity/EQReports/StockPrcHistori.aspx?expandable=7&flag=0'
+                req=urllib.request.Request(uri)
+                res=urllib.request.urlopen(req)
+                page_data_str=res.read().decode('utf-8')
+                parser = MyHTMLParser()
+                MyHTMLParser.url=uri
+                parser.feed(page_data_str)
+            sys.exit(11)
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
             #print(e)
