@@ -287,7 +287,7 @@
                     success: function (data) {
                         debugger;
                         console.log("success "+ data);
-                        result($.map(data, function (item) {
+                        result($.map(JSON.parse(data), function (item) {
                             console.log(item);
                             return item;
                         }));
