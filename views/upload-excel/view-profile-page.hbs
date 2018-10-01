@@ -1,7 +1,11 @@
 <link rel="stylesheet" href="/js/jquery-ui.css">
 <link rel="stylesheet" href="/css/bootstrap.css">
 <link rel="stylesheet" href="/css/bootstrap-select.min.css">
+<link rel="stylesheet" href="/css/bootstrap-datetimepicker.css">
 <style>
+    #datepicker2 {
+        z-index: 1600 !important; /* has to be larger than 1050 */
+    }
     #sortable1, #sortable2, #sortable3 {
         border: 1px solid #eee;
         width: 200px;
@@ -53,6 +57,9 @@
 
 <!-- Latest compiled and minified JavaScript -->
 <script src="/js/bootstrap-select.min.js"></script>
+<script src="/js/moment.min.js"></script>
+<script src="/js/bootstrap-datetimepicker.js"></script>
+<script src="/js/typeahead.js"></script>
 
 
 
@@ -111,15 +118,13 @@
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
 
                         </div>
-                        <form method="POST" action="/edit">
-                        <div class="modal-body">
 
+                            <form method="POST" action="/edit">
                             <div class="modal-body">
                                 <input type="hidden" name="id" value="">
                                 <div class="form-group">
-                                    -<label>Select Security Name :</label>
-                                    <select class="form-control selectpicker" type="text" name="securityCode">
-                                    </select>
+                                    <label>Select Security Name :</label>
+                                    <input type="text" class="form-control typeahead" name="securityCode">
                                 </div>
                                 <div class="form-group">
                                     <label>Security Count  :</label>
@@ -131,7 +136,12 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Transaction Date :</label>
-                                    <input class="form-control" type="text" name="transactionDate">
+                                    <div class='input-group date datetimepicker'>
+                                        <input type='text' class="form-control" name="transactionDate"/>
+                                        <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Transaction Type :</label>
@@ -146,7 +156,6 @@
                             <button type="button" class="btn btn-warning btn-lg" style="width: 100%;"><span class="glyphicon glyphicon-ok-sign"></span> Update</button>
                         </div>
                         </form>
-                    </div>
                     <!-- /.modal-content -->
                 </div>
                 <!-- /.modal-dialog -->
@@ -182,7 +191,7 @@
             <!-- /.modal-dialog -->
         </div>
 
-        <div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+        <div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="add" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -195,8 +204,7 @@
 
                             <div class="form-group">
                                 <label>Select Security Name :</label>
-                                <select class="form-control selectpicker" type="text" name="securityCode">
-                                </select>
+                                <input type="text" class="form-control typeahead" name="securityCode">
                             </div>
                             <div class="form-group">
                                 <label>Security Count  :</label>
@@ -208,7 +216,12 @@
                             </div>
                             <div class="form-group">
                                 <label>Transaction Date :</label>
-                                <input class="form-control" type="text" name="transactionDate">
+                                <div class='input-group date datetimepicker' >
+                                    <input type='text' class="form-control" name="transactionDate"/>
+                                    <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Transaction Type :</label>
@@ -235,17 +248,52 @@
 <script>
     $("[data-toggle=tooltip]").tooltip();
 
-    $("")
-
     function showModal(id){
         debugger;
         if(id == "edit" || id == "delete") {
             $("#" + id + " form input[type='hidden']").val().replace()
         }
+
         $('#'+id).modal({
             backdrop: 'static',
             keyboard: false
         })
+
     }
-    $('.selectpicker').selectpicker();
+    $('.selectpicker').selectpicker({
+        "liveSearch" :true
+    });
+
+    /*$('#datepicker2').datetimepicker({
+        format : "DD/MM/YYYY"
+    });*/
+
+    $(function () {
+        $(".datetimepicker").datetimepicker({
+            format: "DD/MM/YYYY",
+            keepOpen : false
+        });
+    });
+
+
+    $(document).ready(function () {
+        $('.typeahead').typeahead({
+            source: function (query, result) {
+                $.ajax({
+                    url: "/getBSEListing",
+                    data: 'query=' + query+ "",
+                    dataType: "json",
+                    type: "GET",
+                    success: function (data) {
+                        debugger;
+                        console.log("success "+ data);
+                        result($.map(data, function (item) {
+                            console.log(item);
+                            return item;
+                        }));
+                    }
+                });
+            }
+        });
+    });
 </script>
