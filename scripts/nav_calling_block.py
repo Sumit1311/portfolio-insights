@@ -13,7 +13,7 @@ import datetime
 try:
     now = datetime.datetime.now().strftime("%d%m%Y")
     log_file_name='portfolio_tracking_calling_block'+now+'.log'
-    logging.basicConfig(filename=log_file_name,format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
+    logging.basicConfig(filename=os.path.join("log",'portfolio_insights_'+now+'.log'),format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
     usage_text='''Comammand line arguments are not properly provided. Usage is as mentioned below:
     1. To update all bse stock list
         nav_calling_block.py bslu
