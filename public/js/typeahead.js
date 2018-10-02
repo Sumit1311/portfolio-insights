@@ -14,7 +14,7 @@
             var a = this.$menu.find(".active").data("value");
             if (this.$element.data("active", a), this.autoSelect || a) {
                 var b = this.updater(a);
-                b || (b = ""), this.$element.val(this.displayText(b) || b).text(this.displayText(b) || b).change(), this.afterSelect(b)
+                b || (b = ""), this.$element.val(this.displayText(b) || b).text(this.displayText(b) || b).change(), this.afterSelect(this.$menu.find(".active"))
             }
             return this.hide()
         },
