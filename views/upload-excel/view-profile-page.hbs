@@ -280,9 +280,11 @@
 <script src="/js/helpers/navPortfolioHelper.js"></script>
 <script>
     $("[data-toggle=tooltip]").tooltip();
-
-    function showModal(id){
-
+    function showModal(id, r){
+        $("#_nav_"+id+"_error").addClass("hidden");
+        if(id == "edit") {
+            g_rowContent = r;
+        }
         $('#'+id).modal({
             backdrop: 'static',
             keyboard: false
@@ -318,7 +320,7 @@
                     success: function (data) {
                         var r = JSON.parse(data);
                         result($.map(r, function (item) {
-                            return item.security_name +" ("+ item.security_id +")";
+                            return item.security_name;
                         }));
                         debugger;
                         var list = $(".typeahead  > li > .dropdown-item");
@@ -337,14 +339,14 @@
     $("#_nav_table_portfolio_data > tr").click(function(event){
         var rowContent = $(this).find("td");
         $("#edit form input[name='id']").val($(this).find("input[name='transactionId']").val());
-        //$("#edit form input[name='securityCode']").val($(this).find("input[name='securityCode']").val());
+        $("#edit form input[name='securityCode']").val($(this).find("input[name='securityCode']").val());
         $("#edit form input[name='securityName']").val(rowContent[1].textContent);
         $("#edit form input[name='numberOfShares']").val(rowContent[2].textContent);
         $("#edit form input[name='transactionAmount']").val(rowContent[3].textContent);
         $("#edit form input[name='transactionDate']").val(rowContent[4].textContent);
         $("#edit form select[name='transactionType']").val(rowContent[5].textContent);
         $("#edit form select[name='transactionType']").selectpicker('val', rowContent[5].textContent);
-        showModal("edit");
+        showModal("edit", rowContent);
     })
 
     $(".delete-button").click(function(event){
