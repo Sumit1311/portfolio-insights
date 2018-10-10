@@ -406,6 +406,8 @@ class user_profile_ops:
             #print(e)
             sys.exit(11)
 
+
+
     def user_profile_refresh(self, user, refreshtype='only_changed'):
         try:
             self.user=user
@@ -454,6 +456,19 @@ class user_profile_ops:
                 logging.info('Sorted stock data %s',security_data)
                 is_calculated='No'
                 for line in security_data:
+                    user_profile_delete_query='''SELECT count(_id) from nav_user WHERE user_id=%s AND need_full_refresh = 1'''
+                    cur.execute(user_profile_delete_query, (user,))
+                    full_refresh_count=cur.fetchone()
+                    if full_refresh_count[0] == 1 :
+                          logging.debug('DELETE FROM public.user_stock_profile_daily WHERE user_id=%s',self.user)
+                          user_profile_delete_query='''DELETE FROM public.user_stock_profile_daily WHERE user_id=%s'''
+                          cur.execute(user_profile_delete_query, (user,))
+                          logging.debug('DELETE FROM public.user_stock_profile_daily WHERE user_id=%s completed',self.user)
+                          logging.debug('update public.user_stocks_trxn set trxn_flag=0 where user_id=%s',self.user)
+                          user_stock_trxn_update_query='''update public.user_stocks_trxn set trxn_flag=0 where user_id=%s'''
+                          cur.execute(user_stock_trxn_update_query, (user,))
+                          logging.debug('update public.user_stocks_trxn set trxn_flag=0 where user_id=%s completed',self.user)
+                          return
                     Date,Close_Price=line[0],line[1]
                     #add is_active flag here
                     nav_initial_query='''SELECT count(nav) FROM public.user_stock_profile_daily WHERE stock_date=(SELECT MIN(trxn_date) FROM public.user_stocks_trxn where user_id=%s)'''
@@ -516,6 +531,11 @@ class user_profile_ops:
                 update_trxn_flag_data=(trxn_seq_id,)
                 cur.execute(update_trxn_flag_query,update_trxn_flag_data)
                 logging.debug('updated stock trxn table for trxn_flag with SQL %s \nand data %s',update_trxn_flag_query,update_trxn_flag_data)
+            if self.refresh_type=='full':
+                logging.debug('UPDATE nav_user SET need_full_refresh=0 WHERE user_id=%s',self.user)
+                user_profile_delete_query='''UPDATE nav_user SET need_full_refresh=0 WHERE user_id=%s'''
+                cur.execute(user_profile_delete_query, (user,))
+                logging.debug('UPDATE nav_user SET need_full_refresh=0 WHERE user_id=%s completed',self.user)
             con.commit()
             cur.close()
             con.close()
