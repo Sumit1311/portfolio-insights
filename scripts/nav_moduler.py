@@ -456,7 +456,7 @@ class user_profile_ops:
                 logging.info('Sorted stock data %s',security_data)
                 is_calculated='No'
                 for line in security_data:
-                    user_profile_delete_query='''SELECT count(_id) from nav_user WHERE user_id=%s AND need_full_refresh = 1'''
+                    user_profile_delete_query='''SELECT count(_id) from nav_user WHERE _id=%s AND need_full_refresh = 1'''
                     cur.execute(user_profile_delete_query, (user,))
                     full_refresh_count=cur.fetchone()
                     if full_refresh_count[0] == 1 :
