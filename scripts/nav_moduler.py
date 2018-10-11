@@ -115,7 +115,7 @@ class bse_ops:
         #print(e)
         sys.exit(11)
 
-    def get_bse_stock_data(self, trxn_date, security_code, security_id, security_name, trxn_end_date=datetime.datetime.now()):
+    def get_bse_stock_data(self, trxn_date, security_code, security_id, security_name, trxn_end_date=datetime.datetime.now(), retry_count=0):
         try:
             logging.info('Inside get_bse_stock_data function called get_bse_stock_data(self, %s, %s, %s, %s)',trxn_date, security_code, security_id, security_name)
             user_stock_list=list()
@@ -163,7 +163,8 @@ class bse_ops:
             return security_data
         except (ValueError, urllib.error.HTTPError) as e:
             logging.exception("Following is the exception occured http: %s", str(e))
-            if 'not enough values to unpack' in str(e) or 'HTTP Error 404' in str(e):
+            if 'not enough values to unpack' in str(e) and 'HTTP Error 404' in str(e) and retry_count < 10:
+                retry_count++
                 logging.debug('Inside except of get_bse_stocks')
                 uri="https://www.bseindia.com/markets/equity/EQReports/StockPrcHistori.aspx?expandable=7&flag=0"
                 req=urllib.request.Request(uri)
@@ -175,7 +176,7 @@ class bse_ops:
                 parser.feed(page_data_str)
                 logging.debug('updating session variables for %s completed',uri)
                 logging.debug('outside except of get_bse_stocks')
-                self.get_bse_stock_data(trxn_date, security_code, security_id, security_name, trxn_end_date)
+                self.get_bse_stock_data(trxn_date, security_code, security_id, security_name, trxn_end_date, retry_count)
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
             #print(e)

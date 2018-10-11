@@ -319,18 +319,18 @@
                     type: "GET",
                     success: function (data) {
                         var r = JSON.parse(data);
-                        result($.map(r, function (item) {
+                        result($.map(r, function (item, index) {
                             return item.security_name;
                         }));
-                        debugger;
-                        var list = $(".typeahead  > li > .dropdown-item");
+                        var list = $(".typeahead  > li");
                         for(var i = 0; i < r.length; i++){
-                            list[i].href ="#"+r[i].security_code;
+                            $(list[i]).children()[0].href ="#"+r[i].security_code;
                         }
                     }
                 });
             },
             afterSelect : function(item){
+                debugger;
                 var securityCode = $(item).find("a.dropdown-item")[0].href.split("#")[1];
                 $(item).closest(".form-group").find("input[name='securityCode']").val(securityCode);
             }

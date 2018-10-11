@@ -49,7 +49,7 @@ navPortfolioHelper.prototype.takeAction = function (form) {
         url = "/add"
     } else if (this.type == "edit") {
         url = "/edit"
-        if(!verifyModified(body)){
+        if(!isModified(form.serializeArray())){
             self.showError("Data not modified", self.type);
             return Q.resolve();
         }
@@ -78,12 +78,31 @@ var registerPortfolioHandlers = function () {
 
 registerPortfolioHandlers();
 
-function verifyModified(data) {
-    if(data.securityName == g_rowContent[1].textContent &&
-        data.numberOfShares == g_rowContent[2].textContent &&
-        data.transactionAmount == g_rowContent[3].textContent &&
-        data.transactionDate == g_rowContent[4].textContent &&
-        data.transactionType == g_rowContent[5].textContent){
-        return false;
+function isModified(data) {
+    var flag = true;
+    for(var i = 0; i< data.length; i++){
+        switch(data[i].name){
+            case "securityName":
+                flag &= (data[i].value == g_rowContent[1].textContent);
+                break;
+            case "numberOfShares" :
+                flag &= (data[i].value == g_rowContent[2].textContent);
+                break;
+            case "transactionAmount" :
+                flag &= (data[i].value == g_rowContent[3].textContent);
+                break;
+            case "transactionDate" :
+                flag &= (data[i].value == g_rowContent[4].textContent);
+                break;
+            case "transactionType" :
+                flag &= (data[i].value == g_rowContent[5].textContent);
+                break;
+            default:
+                continue;
+        }
+        if(flag == false) {
+            return !flag;
+        }
     }
+    return !flag;
 }
