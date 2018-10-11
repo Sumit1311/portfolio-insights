@@ -320,7 +320,7 @@
                     success: function (data) {
                         var r = JSON.parse(data);
                         result($.map(r, function (item, index) {
-                            return item.security_name;
+                            return {name : item.security_name,code:item.security_code};
                         }));
                         var list = $(".typeahead  > li");
                         for(var i = 0; i < r.length; i++){
@@ -331,8 +331,7 @@
             },
             afterSelect : function(item){
                 debugger;
-                var securityCode = $(item).find("a.dropdown-item")[0].href.split("#")[1];
-                $(item).closest(".form-group").find("input[name='securityCode']").val(securityCode);
+                $(item).closest(".form-group").find("input[name='securityCode']").val($(item).data("value").code);
             }
         });
     });

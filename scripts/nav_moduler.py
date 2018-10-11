@@ -164,7 +164,7 @@ class bse_ops:
         except (ValueError, urllib.error.HTTPError) as e:
             logging.exception("Following is the exception occured http: %s", str(e))
             if 'not enough values to unpack' in str(e) and 'HTTP Error 404' in str(e) and retry_count < 10:
-                retry_count++
+                retry_count+=1
                 logging.debug('Inside except of get_bse_stocks')
                 uri="https://www.bseindia.com/markets/equity/EQReports/StockPrcHistori.aspx?expandable=7&flag=0"
                 req=urllib.request.Request(uri)
@@ -429,6 +429,10 @@ class user_profile_ops:
                 user_stock_trxn_update_query='''update public.user_stocks_trxn set trxn_flag=0 where user_id=%s'''
                 cur.execute(user_stock_trxn_update_query, (user,))
                 logging.debug('update public.user_stocks_trxn set trxn_flag=0 where user_id=%s completed',self.user)
+                logging.debug('UPDATE nav_user SET need_full_refresh=0 WHERE _id=%s',self.user)
+                user_profile_delete_query='''UPDATE nav_user SET need_full_refresh=0 WHERE _id=%s'''
+                cur.execute(user_profile_delete_query, (user,))
+                logging.debug('UPDATE nav_user SET need_full_refresh=0 WHERE _id=%s completed',self.user)
 #add is_active flag in where clause
             user_stock_trxn_query='''SELECT user_id,slb.security_code,security_count,trxn_date,trxn_type,slb.security_id, trim( TRAILING '.' from slb.security_name) as security_name,ust._id FROM public.user_stocks_trxn ust
                                      JOIN public.stock_list_bse slb ON ust.security_code=slb.security_code WHERE ust.user_id=%s and trxn_flag=0 order by ust.trxn_date asc'''
@@ -460,7 +464,7 @@ class user_profile_ops:
                     user_profile_delete_query='''SELECT count(_id) from nav_user WHERE _id=%s AND need_full_refresh = 1'''
                     cur.execute(user_profile_delete_query, (user,))
                     full_refresh_count=cur.fetchone()
-                    if full_refresh_count[0] == 1 :
+                    if full_refresh_count[0] == 1 and self.refresh_type!='full':
                           logging.debug('DELETE FROM public.user_stock_profile_daily WHERE user_id=%s',self.user)
                           user_profile_delete_query='''DELETE FROM public.user_stock_profile_daily WHERE user_id=%s'''
                           cur.execute(user_profile_delete_query, (user,))
@@ -532,11 +536,6 @@ class user_profile_ops:
                 update_trxn_flag_data=(trxn_seq_id,)
                 cur.execute(update_trxn_flag_query,update_trxn_flag_data)
                 logging.debug('updated stock trxn table for trxn_flag with SQL %s \nand data %s',update_trxn_flag_query,update_trxn_flag_data)
-            if self.refresh_type=='full':
-                logging.debug('UPDATE nav_user SET need_full_refresh=0 WHERE user_id=%s',self.user)
-                user_profile_delete_query='''UPDATE nav_user SET need_full_refresh=0 WHERE user_id=%s'''
-                cur.execute(user_profile_delete_query, (user,))
-                logging.debug('UPDATE nav_user SET need_full_refresh=0 WHERE user_id=%s completed',self.user)
             con.commit()
             cur.close()
             con.close()
