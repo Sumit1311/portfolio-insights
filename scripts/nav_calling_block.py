@@ -23,7 +23,6 @@ try:
     #deleting the logs file older than 4 days
     days_to_remove=4
     directory_to_clean=os.getcwd()+"\log"
-    time_in_secs = time.time() - (days_to_remove * 24 * 60 * 60)
     for dirpath, dirnames, filenames in os.walk(directory_to_clean):
        for file in filenames:
           curpath = os.path.join(dirpath, file)
