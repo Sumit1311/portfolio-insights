@@ -177,6 +177,8 @@ class bse_ops:
                 logging.debug('updating session variables for %s completed',uri)
                 logging.debug('outside except of get_bse_stocks')
                 self.get_bse_stock_data(trxn_date, security_code, security_id, security_name, trxn_end_date, retry_count)
+            else:
+                sys.exit(11)
         except Exception as e:
             logging.exception("Following is the exception occured: %s", e)
             #print(e)
@@ -516,7 +518,44 @@ class user_profile_ops:
                                 #print(Date, trxn_date, units)
                                 is_calculated='Yes'
                             elif is_calculated=='No':
+                                logging.warning('TRXN_DATE IS NOT A BUSINESS DAY : %s', trxn_date)
+                                logging.info('Security Buy/Sell date %s is not business day so will use and modify the profile value for business day existed before %s', trxn_date, trxn_date)
                                 #get data for previous days trxn *************************trxn_end_date function modified
+                                ''' get stock data for previous seven days from trxn_date
+                                    find max date where stock data is avaiable then get nav of the same date , perform the calculation of units of that day
+                                    update the user_stocks_profilr table for sec_count, prof_value and units of that day and pass units to final_units
+                                '''
+                                #print(trxn_date,type(trxn_date),trxn_date - datetime.timedelta(days=8), datetime.datetime.now(), security_code, security_id, security_name)
+                                #print(trxn_date.day, datetime.datetime(trxn_date.year,trxn_date.month,trxn_date.day,21,34,59))
+                                #trxn_date - datetime.timedelta(days=8)
+                                #get_bse_stock_data(self, trxn_date, security_code, security_id, security_name, trxn_end_date=datetime.datetime.now(), retry_count=0)
+                                security_data_prv7=list()
+                                logging.debug('prev_seven_days_secdata=secobj.get_bse_stock_data(trxn_date - datetime.timedelta(days=8), security_code, security_id, security_name,datetime.datetime(trxn_date.year,trxn_date.month,trxn_date.day,21,34,59)) with data trx start date %s , security code %s , securiti id %s, security_name %s trxn end date %s',trxn_date - datetime.timedelta(days=8), security_code, security_id, security_name,datetime.datetime(trxn_date.year,trxn_date.month,trxn_date.day,21,34,59))
+                                prev_seven_days_secdata=secobj.get_bse_stock_data(trxn_date - datetime.timedelta(days=8), security_code, security_id, security_name,datetime.datetime(trxn_date.year,trxn_date.month,trxn_date.day,21,34,59))
+                                for line_t in prev_seven_days_secdata:
+                                    #print(line_t)
+                                    Date_t,Open_Price_t,High_Price_t,Low_Price_t,Close_Price_t,WAP_t,No_of_Shares_t,No_of_Trades_t,Total_Turnover_t,Deliverable_Quantity_t,Perc_Deli_Qty_to_Traded_Qty_t,Spread_HighVSLow_t,Spread_CloseVSOpen_t=line_t.decode('utf-8').replace('\n','').replace('\r','').split(',')
+                                    if Date_t=='Date':
+                                        continue
+                                    security_data_prv7.append((Date_t,Close_Price_t))
+                                security_data_prv7.sort(key=self.sortFirst)
+                                #print(security_data_prv7,security_data_prv7[-1])
+                                Date_t=security_data_prv7[-1][0]
+                                get_nav_t='''SELECT nav FROM public.user_stock_profile_daily WHERE user_id=%s and stock_date =%s'''
+                                get_nav_data_t=(user_id,Date_t)
+                                cur.execute(get_nav_t,get_nav_data_t)
+                                nav_data_t=cur.fetchone()
+                                logging.debug('NOT BUSINESS DAY : Fetched previuos days nav %s for date %s',nav_data_t[0],Date_t)
+                                units=security_count*float(Close_Price_t)/nav_data_t[0]
+                                #print(units)
+                                profile_value_per_stock_per_date_t=security_count*float(Close_Price)
+                                data_t=(security_count,profile_value_per_stock_per_date_t,units,user_id,Date_t)
+                                if trxn_type=='Buy':
+                                    profile_update='''UPDATE public.user_stock_profile_daily SET  security_count= security_count+%s , profile_value=profile_value+%s, units=units+%s WHERE user_id=%s AND stock_date=%s'''
+                                if trxn_type=='Sell':
+                                    profile_update='''UPDATE public.user_stock_profile_daily SET  security_count= security_count-%s , profile_value=profile_value-%s, units=units-%s WHERE user_id=%s AND stock_date=%s'''
+                                cur.execute(profile_update,data_t)
+                                logging.debug('NOT BUSINESS DAY : updating profile value using SQL %s \nand data %s',profile_update,data_t)
                                 is_calculated='Yes'
                             final_units=units
                             #print('final_units: ' ,final_units)
