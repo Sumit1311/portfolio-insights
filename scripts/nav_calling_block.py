@@ -10,6 +10,7 @@ import logging
 from nav_moduler import user_profile_ops
 from nav_moduler import bse_ops
 import datetime
+import time
 
 class ErrorInSubProc(Exception):
    """Base class for other exceptions"""
@@ -19,6 +20,16 @@ try:
     now = datetime.datetime.now().strftime("%d%m%Y")
     log_file_name='portfolio_tracking_calling_block'+now+'.log'
     logging.basicConfig(filename=os.path.join("log",'portfolio_insights_'+now+'.log'),format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
+    #deleting the logs file older than 4 days
+    days_to_remove=4
+    directory_to_clean=os.getcwd()+"\log"
+    for dirpath, dirnames, filenames in os.walk(directory_to_clean):
+       for file in filenames:
+          curpath = os.path.join(dirpath, file)
+          file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(curpath))
+          if datetime.datetime.now() - file_modified > datetime.timedelta(hours=days_to_remove*24):
+             logging.info('Deleting the file : %s',curpath)
+             os.remove(curpath)
     usage_text='''Comammand line arguments are not properly provided. Usage is as mentioned below:
     1. To update all bse stock list
         nav_calling_block.py bslu
